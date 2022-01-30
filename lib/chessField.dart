@@ -95,7 +95,6 @@ class ChessField extends StatelessWidget {
     );
   }
 
-  @override
   String toS() {
     return '''xy:$xyPosition color:$color marker:$marker
     |----figure:$rammerField

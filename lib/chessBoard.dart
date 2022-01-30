@@ -20,7 +20,7 @@ class Board extends StatefulWidget {
         Figure? figure = chessFields[pos].figure;
         if (figure != null) {
           possibleMoves = figure.getPossibleMoves(x, y, this);
-          pMap["${x}_${y}"] = possibleMoves;
+          pMap["${x}_$y"] = possibleMoves;
         }
       }
     }
@@ -55,7 +55,7 @@ class Board extends StatefulWidget {
         }
       }
     }
-    print("totalEvaluation ${totalEvaluation} figCount ${figCount}");
+    print("totalEvaluation $totalEvaluation figCount $figCount");
     return totalEvaluation;
   }
   // The framework calls createState the first time

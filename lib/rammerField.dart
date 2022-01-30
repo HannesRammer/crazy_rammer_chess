@@ -17,9 +17,9 @@ class RammerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print('RammerField was tapped!');
-      },
+      // onTap: () {
+      //   print('RammerField was tapped!');
+      // },
         child: SizedBox(
           child: CircleAvatar(
             radius: 200,
