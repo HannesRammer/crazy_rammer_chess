@@ -52,8 +52,8 @@ class ChessField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print('ChessField was tapped!');
+      // onTap: () {
+      //   print('ChessField was tapped!');
         // document.querySelector("#fromChessFieldDiv").setAttribute("value", ChessBoard.calcPos(figure.x, figure.y));
         //     if (rammerField?.figure.color == chessBoard.colorToMove) {
         /*  chessBoard.fromChessField = ChessBoard.calcPos(x, y);
@@ -71,7 +71,7 @@ class ChessField extends StatelessWidget {
     });
     update();
 */
-      },
+      // },
       child: Container(
 
           padding: const EdgeInsets.all(8.0),

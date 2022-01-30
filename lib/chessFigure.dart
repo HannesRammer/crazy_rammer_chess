@@ -633,9 +633,9 @@ class Figure extends StatelessWidget {
   Widget build(BuildContext context) {
     String colorName = (color == Colors.white) ? "white" : "black";
     return GestureDetector(
-      // onTap: () {
-      //   print('ChessFigure was tapped!');
-      // },
+      onTap: () {
+        print('ChessFigure was tapped!');
+      },
         child: SizedBox(
           width: 100,
           height: 100,
