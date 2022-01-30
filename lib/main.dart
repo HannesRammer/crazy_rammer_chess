@@ -9,14 +9,7 @@ import 'rammerField.dart';
 Map chessBoardMap = {};
 List chessBoardList = [];
 
-List rammerDirections = [
-  "up",
-  "right",
-  "down",
-  "left",
-  "clockwise",
-  "anticlockwise"
-];
+List rammerDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
 Map rammerColors = {
   "up": Colors.red,
   "right": Colors.green,
@@ -28,104 +21,18 @@ Map rammerColors = {
 
 int rammerDirectionsCounter = 0;
 List board = [
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ]
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white]
 ];
 
-Map whiteFiguresCode = {
-  "king": "&#x2654;",
-  "queen": "&#x2655;",
-  "rook": "&#x2656;",
-  "bishop": "&#x2657;",
-  "knight": "&#x2658;",
-  "pawn": "&#x2659;"
-};
-Map blackFiguresCode = {
-  "king": "&#x265A;",
-  "queen": "&#x265B;",
-  "rook": "&#x265C;",
-  "bishop": "&#x265D;",
-  "knight": "&#x265E;",
-  "pawn": "&#x265F;"
-};
+Map whiteFiguresCode = {"king": "&#x2654;", "queen": "&#x2655;", "rook": "&#x2656;", "bishop": "&#x2657;", "knight": "&#x2658;", "pawn": "&#x2659;"};
+Map blackFiguresCode = {"king": "&#x265A;", "queen": "&#x265B;", "rook": "&#x265C;", "bishop": "&#x265D;", "knight": "&#x265E;", "pawn": "&#x265F;"};
 
 List topFigures = [
   "rook",
@@ -268,16 +175,14 @@ void initBoard() {
         } else {
           rammerDirectionsCounter++;
         }
-
-        }
-      Figure? figure = Figure();
+      }
+      Figure? figure = Figure(x: x, y: y);
 
       if (Board.calcPos(x, y) < 16) {
-        figure = Figure(type: topFigures.removeAt(0), color: Colors.black);
-      }else
-      if (Board.calcPos(x, y) >= 48) {
-        figure = Figure(type: bottomFigures.removeAt(0), color: Colors.white);
-      }else{
+        figure = Figure(type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
+      } else if (Board.calcPos(x, y) >= 48) {
+        figure = Figure(type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
+      } else {
         figure = null;
       }
       ChessField chessField = ChessField(
@@ -291,12 +196,11 @@ void initBoard() {
         marker: "",
       );
 
-      chessBoard.fromChessField = ChessField();
-      chessBoard.toChessField = ChessField();
+      chessBoard.fromChessFieldPosition = -1 ;
+      chessBoard.toChessFieldPosition = -1 ;
       chessBoardMap["${x} ${letter}"] = chessField;
       chessBoardList.add(chessField);
       chessBoard.chessFields.add(chessField);
-
     }
   }
 }
@@ -383,7 +287,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   // update();
 }
 
-void addMove(chessField, marker) {
+void addMove(ChessField chessField, marker) {
   chessField.marker = marker;
 }
 

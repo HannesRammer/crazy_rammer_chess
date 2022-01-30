@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'chessBoard.dart';
 
 import 'chessField.dart';
+import 'main.dart';
 
 class Figure extends StatelessWidget {
-  Figure({Key? key, this.type, this.color}) : super(key: key) {
+  Figure({Key? key, this.type, this.color, required this.x, required this.y}) : super(key: key) {
     className = "${type}_${color?.value}";
     int multi = 1;
     if (color == Colors.black) {
@@ -31,10 +32,13 @@ class Figure extends StatelessWidget {
   final String? type;
   final Color? color;
   int value = 0;
+  int x;
+  int y;
+
   bool calculated = false;
   bool hasMoved = false;
 
-  getPossibleMoves(int x, int y, Board chessBoard) {
+  List getPossibleMoves(int x, int y, Board chessBoard) {
     List possibleMoves = [];
     if (type == "rook") {
       possibleMoves = Figure.getRookMoves(this, x, y, chessBoard);
@@ -52,7 +56,7 @@ class Figure extends StatelessWidget {
     return possibleMoves;
   }
 
-  static getRookMoves(rook, int x, int y, Board chessBoard) {
+  static List getRookMoves(rook, int x, int y, Board chessBoard) {
     List possibleMoves = [];
     List possibleAttacks = [];
 
@@ -145,7 +149,7 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static getBishopMoves(Figure bishop, int x, int y, Board chessBoard) {
+  static List getBishopMoves(Figure bishop, int x, int y, Board chessBoard) {
     List possibleMoves = [];
     List possibleAttacks = [];
 
@@ -262,7 +266,7 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static getQueenMoves(queen, int x, int y, Board chessBoard) {
+  static List getQueenMoves(queen, int x, int y, Board chessBoard) {
     List possibleMoves = [];
     List possibleAttacks = [];
 
@@ -467,7 +471,7 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static getKingMoves(king, int x, int y, Board chessBoard) {
+  static List getKingMoves(king, int x, int y, Board chessBoard) {
     // y = switchY(y);
     List possibleMoves = [];
     List possibleAttacks = [];
@@ -483,7 +487,7 @@ class Figure extends StatelessWidget {
     ];
 // debugger;
 
-    kingMoves.forEach((position) {
+    for (var position in kingMoves) {
       if ((position[0] >= 0 && position[0] < 8) && (position[1] >= 0 && position[1] < 8)) {
         ChessField chessField = chessBoard.getChessField(Board.calcPos(position[0], position[1]));
         Figure? chessFieldFigure = chessField.figure;
@@ -502,11 +506,11 @@ class Figure extends StatelessWidget {
           }
         }
       }
-    });
+    }
     return [possibleMoves, possibleAttacks];
   }
 
-  static getKnightMoves(knight, int x, int y, Board chessBoard) {
+  static List getKnightMoves(Figure knight, int x, int y, Board chessBoard) {
     // y = switchY(y);
     List possibleMoves = [];
     List possibleAttacks = [];
@@ -521,8 +525,9 @@ class Figure extends StatelessWidget {
       [x + 1, y - 2]
     ];
 // debugger;
+//    knightMoves.forEach((position) {
 
-    knightMoves.forEach((position) {
+    for (var position in knightMoves) {
       if ((position[0] >= 0 && position[0] < 8) && (position[1] >= 0 && position[1] < 8)) {
         ChessField chessField = chessBoard.getChessField(Board.calcPos(position[0], position[1]));
         Figure? chessFieldFigure = chessField.figure;
@@ -541,11 +546,11 @@ class Figure extends StatelessWidget {
           }
         }
       }
-    });
+    }
     return [possibleMoves, possibleAttacks];
   }
 
-  static getPawnMoves(pawn, int x, int y, Board chessBoard) {
+  static List getPawnMoves(pawn, int x, int y, Board chessBoard) {
     List possibleMoves = [];
     List possibleAttacks = [];
 //move one field
@@ -555,71 +560,69 @@ class Figure extends StatelessWidget {
     } else {
       chessField = chessBoard.getChessField(Board.calcPos(x, y + 1));
     }
-    if (chessField != null) {
-      //no field for move one found;
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      } else {
-        isEmpty = false;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      }
-//move two field
-      if (!pawn.hasMoved) {
-        ChessField chessField1;
-        ChessField chessField2;
-        if (pawn.color == "white") {
-          chessField1 = chessBoard.getChessField(Board.calcPos(x, y - 1));
-          chessField2 = chessBoard.getChessField(Board.calcPos(x, y - 2));
-        } else {
-          chessField1 = chessBoard.getChessField(Board.calcPos(x, y + 1));
-          chessField2 = chessBoard.getChessField(Board.calcPos(x, y + 2));
-        }
-        Figure? chessFieldFigure1 = chessField1.figure;
-        Figure? chessFieldFigure2 = chessField2.figure;
-        bool isEmpty1 = chessFieldFigure1 == null;
-        bool isEmpty2 = chessFieldFigure2 == null;
-        if (isEmpty1 && isEmpty2) {
-          possibleMoves.add(chessField2);
-        }
-      }
-//attack right
-      if (pawn.color == "white") {
-        chessField = chessBoard.getChessField(Board.calcPos(x + 1, y - 1));
-      } else {
-        chessField = chessBoard.getChessField(Board.calcPos(x + 1, y + 1));
-      }
-      chessFieldFigure = chessField.figure;
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      } else {
-        isEmpty = false;
-      }
-      if (!isEmpty) {
-        bool isEnemy = chessFieldFigure?.color != pawn.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-      }
-//attack left
+    //no field for move one found;
+    Figure? chessFieldFigure = chessField.figure;
+    bool isEmpty = false;
+    if (chessFieldFigure == null) {
+      isEmpty = true;
+    } else {
       isEmpty = false;
+    }
+    if (isEmpty) {
+      possibleMoves.add(chessField);
+    }
+//move two field
+    if (!pawn.hasMoved) {
+      ChessField chessField1;
+      ChessField chessField2;
       if (pawn.color == "white") {
-        chessField = chessBoard.getChessField(Board.calcPos(x - 1, y - 1));
+        chessField1 = chessBoard.getChessField(Board.calcPos(x, y - 1));
+        chessField2 = chessBoard.getChessField(Board.calcPos(x, y - 2));
       } else {
-        chessField = chessBoard.getChessField(Board.calcPos(x - 1, y + 1));
+        chessField1 = chessBoard.getChessField(Board.calcPos(x, y + 1));
+        chessField2 = chessBoard.getChessField(Board.calcPos(x, y + 2));
       }
-      chessFieldFigure = chessField.figure;
-      if (chessFieldFigure == null) {
-        isEmpty = true;
+      Figure? chessFieldFigure1 = chessField1.figure;
+      Figure? chessFieldFigure2 = chessField2.figure;
+      bool isEmpty1 = chessFieldFigure1 == null;
+      bool isEmpty2 = chessFieldFigure2 == null;
+      if (isEmpty1 && isEmpty2) {
+        possibleMoves.add(chessField2);
       }
-      if (!isEmpty) {
-        bool isEnemy = chessFieldFigure?.color != pawn.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
+    }
+//attack right
+    if (pawn.color == "white") {
+      chessField = chessBoard.getChessField(Board.calcPos(x + 1, y - 1));
+    } else {
+      chessField = chessBoard.getChessField(Board.calcPos(x + 1, y + 1));
+    }
+    chessFieldFigure = chessField.figure;
+    if (chessFieldFigure == null) {
+      isEmpty = true;
+    } else {
+      isEmpty = false;
+    }
+    if (!isEmpty) {
+      bool isEnemy = chessFieldFigure?.color != pawn.color;
+      if (isEnemy) {
+        possibleAttacks.add(chessField);
+      }
+    }
+//attack left
+    isEmpty = false;
+    if (pawn.color == "white") {
+      chessField = chessBoard.getChessField(Board.calcPos(x - 1, y - 1));
+    } else {
+      chessField = chessBoard.getChessField(Board.calcPos(x - 1, y + 1));
+    }
+    chessFieldFigure = chessField.figure;
+    if (chessFieldFigure == null) {
+      isEmpty = true;
+    }
+    if (!isEmpty) {
+      bool isEnemy = chessFieldFigure?.color != pawn.color;
+      if (isEnemy) {
+        possibleAttacks.add(chessField);
       }
     }
     return [possibleMoves, possibleAttacks];
@@ -635,41 +638,36 @@ class Figure extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         print('ChessFigure was tapped!');
+        // document.querySelector("#fromChessFieldDiv").setAttribute("value", Board.calcPos(figure.x, figure.y));
+        if (color == chessBoard.colorToMove) {
+          chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
+          // chessBoard.toChessField = "";
+          chessBoard.removeMoves();
+          List moveList = getPossibleMoves(x, y, chessBoard);
+          if (moveList.isNotEmpty) {
+            for (var element in moveList[0]) {
+              addMove(element, Colors.green);
+            }
+
+            for (var element in moveList[1]) {
+              addMove(element, Colors.red);
+            }
+
+            // update /renderBoard
+            // (
+            // );
+          }
+        }
       },
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: Image.asset(
-            "images/$type${color == Colors.white ? "white" : "black"}.png",
-          ),
+      child: SizedBox(
+        width: 100,
+        height: 100,
+        child: Image.asset(
+          "images/$type${color == Colors.white ? "white" : "black"}.png",
+        ),
       ),
     );
   }
 
-  Figure.clone(Figure? figure) : this(color: figure?.color, type: figure?.type);
+  Figure.clone(Figure? figure, {Key? key}) : this(color: figure!.color, type: figure.type, x: figure.x, y: figure.y);
 }
-
-/*
-createFigureDiv(figure, x, y) {
-  figureDiv.onclick =  () {
-    // document.querySelector("#fromChessFieldDiv").setAttribute("value", Board.calcPos(figure.x, figure.y));
-    if (figure.color == chessBoard.colorToMove) {
-      chessBoard.fromChessField = Board.calcPos(x, y);
-      // chessBoard.toChessField = "";
-      chessBoard.removeMoves();
-      int moveList = figure.getPossibleMoves(x, y,chessBoard);
-      if (moveList.length > 0) {
-        moveList[0].forEach((element) => {
-        addMove(element, "#00ff1461");
-            print("moveList:${element}")
-      });
-    moveList[1].forEach((element) => {
-    addMove(element, "#ff001842");
-    print("attackList:${element}")
-    });
-    update();
-  }
-  }
-  };
-  return figureDiv;
-}*/

@@ -8,35 +8,38 @@ class Board extends StatefulWidget {
   String name = "RammerChess";
   List<ChessField> chessFields;
   Color? colorToMove = Colors.white;
-  ChessField? fromChessField ;
-  ChessField? toChessField ;
+  int? fromChessFieldPosition;
+  int? toChessFieldPosition;
 
-  Map getPossibleMoves() {
-    List possibleMoves = [];
-    Map pMap = {};
-    for (int x = 0; x < 8; x++) {
-      for (int y = 0; y < 8; y++) {
-        int pos = Board.calcPos(x, y);
-        Figure? figure = chessFields[pos].figure;
-        if (figure != null) {
-          possibleMoves = figure.getPossibleMoves(x, y, this);
-          pMap["${x}_$y"] = possibleMoves;
-        }
-      }
-    }
-    //return possibleMoves;
-    return pMap;
-  }
+  //###THIS IS FOR CHESS AI
+  // Map getPossibleMoves() {
+  //   List possibleMoves = [];
+  //   Map pMap = {};
+  //   for (int x = 0; x < 8; x++) {
+  //     for (int y = 0; y < 8; y++) {
+  //       int pos = Board.calcPos(x, y);
+  //       Figure? figure = chessFields[pos].figure;
+  //       if (figure != null) {
+  //         possibleMoves = figure.getPossibleMoves(x, y, this);
+  //         pMap["${x}_$y"] = possibleMoves;
+  //       }
+  //     }
+  //   }
+  //   //return possibleMoves;
+  //   return pMap;
+  // }
 
   void removeMoves() {
-    chessFields.forEach((chessField) => chessField.marker = "");
+    for (ChessField chessField in chessFields) {
+      chessField.marker = "";
+    }
   }
 
   ChessField getChessField(pos) {
     return chessFields[pos];
   }
 
-  static calcPos(x, y) {
+  static int calcPos(x, y) {
     return (y * 8) + (x + 1) - 1;
   }
 
@@ -58,6 +61,7 @@ class Board extends StatefulWidget {
     print("totalEvaluation $totalEvaluation figCount $figCount");
     return totalEvaluation;
   }
+
   // The framework calls createState the first time
   // a widget appears at a given location in the tree.
   // If the parent rebuilds and uses the same type of
