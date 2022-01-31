@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 //import 'package:rammer_chess/chess.dart';
-import 'chessField.dart';
-import 'chessBoard.dart';
-import 'chessFigure.dart';
-import 'rammerField.dart';
+import 'chess_field.dart';
+import 'chess_board.dart';
+import 'chess_figure.dart';
+import 'rammer_field.dart';
 
 Map chessBoardMap = {};
 List chessBoardList = [];
@@ -132,7 +132,7 @@ void main() {
 
 
 void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
-  Figure? figureCopy = Figure.clone(fromChessField.figure);
+  Figure figureCopy = Figure.clone(fromChessField.figure, key: fromChessField.figure!.key!,);
   figureCopy.hasMoved = true;
   toChessField.figure = figureCopy;
   fromChessField.figure = null;

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'chessField.dart';
-import 'chessFigure.dart';
-import 'rammerField.dart';
+import 'chess_field.dart';
+import 'chess_figure.dart';
+import 'rammer_field.dart';
 import 'main.dart';
 
+// ignore: must_be_immutable
 class Board extends StatefulWidget {
   Board({required this.chessFields, required Key key}) : super(key: key) {
     // TODO: implement
@@ -77,20 +78,19 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
-  final _chessBoard = <ChessField>{};
-  bool  _changed = false;
+  bool _changed = false;
 
-  void _handleMarkerSelected(bool newValue) {
-    setState(() {
-      _changed = newValue;
-    });
-  }
+  // void _handleMarkerSelected(bool newValue) {
+  //   setState(() {
+  //    // _changed = newValue;
+  //   });
+  // }
 
   //void _handleChessFigureTapped(List<ChessField> newValue) {
   void _handleChessFigureTapped(bool newValue) {
     setState(() {
       _changed = newValue;
-      print("figure selected");
+     // print("figure selected");
     });
   }
 
@@ -120,7 +120,9 @@ class _BoardState extends State<Board> {
         for (int x = 0; x < 8; x++) {
           //column
           String special = "";
-          RammerField? rammerField = RammerField();
+          RammerField? rammerField = RammerField(
+            key: UniqueKey(),
+          );
 
           if (y == 0 || y == 1) {
             special = "none";
@@ -140,12 +142,12 @@ class _BoardState extends State<Board> {
               rammerDirectionsCounter++;
             }
           }
-          Figure? figure = Figure(x: x, y: y);
+          Figure? figure = Figure(key: UniqueKey(), x: x, y: y);
 
           if (Board.calcPos(x, y) < 16) {
-            figure = Figure(type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
+            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
           } else if (Board.calcPos(x, y) >= 48) {
-            figure = Figure(type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
+            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
           } else {
             figure = null;
           }
@@ -158,10 +160,10 @@ class _BoardState extends State<Board> {
             figure: figure,
             rammerField: rammerField,
             marker: null,
-            onMarkerSelected: _handleMarkerSelected,
+            // onMarkerSelected: _handleMarkerSelected,
             onFigureSelected: _handleChessFigureTapped,
-            changed:_changed,key: UniqueKey(),
-
+            changed: !_changed,
+            key: UniqueKey(),
           );
 
           chessBoard.fromChessFieldPosition = -1;
@@ -196,7 +198,7 @@ class _BoardState extends State<Board> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('chessBoard.dart'),
+        title: const Text('chess_board.dart'),
       ),
       body: GridView.count(
         crossAxisCount: 8,

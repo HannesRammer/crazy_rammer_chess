@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'chessFigure.dart';
 
+// ignore: must_be_immutable
 class RammerField extends StatelessWidget {
-  RammerField({Key? key, this.x, this.y, this.special, this.color}) : super(key: key);
+  RammerField({required Key key, this.x, this.y, this.special, this.color}) : super(key: key);
 
   int? x;
   int? y;

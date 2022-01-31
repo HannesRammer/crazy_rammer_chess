@@ -1,13 +1,12 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'chessBoard.dart';
+import 'chess_board.dart';
 
-import 'chessField.dart';
-import 'main.dart';
+import 'chess_field.dart';
 
+// ignore: must_be_immutable
 class Figure extends StatelessWidget {
-  Figure({Key? key, this.type, this.color, required this.x, required this.y}) : super(key: key) {
+  Figure({required Key key, this.type, this.color, required this.x, required this.y}) : super(key: key) {
     className = "${type}_${color?.value}";
     int multi = 1;
     if (color == Colors.black) {
@@ -669,5 +668,5 @@ class Figure extends StatelessWidget {
     );
   }
 
-  Figure.clone(Figure? figure, {Key? key}) : this(color: figure!.color, type: figure.type, x: figure.x, y: figure.y);
+  Figure.clone(Figure? figure, { required Key key}) : this(color: figure!.color, type: figure.type, x: figure.x, y: figure.y,key:key);
 }

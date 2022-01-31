@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import "main.dart";
-import "chessBoard.dart";
-import "chessFigure.dart";
-import "rammerField.dart";
+import "chess_board.dart";
+import "chess_figure.dart";
+import "rammer_field.dart";
 
 //typedef BoardChangedCallback = Function(ChessField chessField, bool onBoard);
 
@@ -19,7 +19,7 @@ class ChessField extends StatelessWidget {
     required this.changed,
     this.figure,
     this.marker,
-    required this.onMarkerSelected,
+    //required this.onMarkerSelected,
     required this.onFigureSelected,
   }) : super(key: key);
 
@@ -35,7 +35,7 @@ class ChessField extends StatelessWidget {
   final bool? onBoard = true;
 
   // final ValueChanged<bool> onChanged;
-  final ValueChanged<bool> onMarkerSelected;
+  //final ValueChanged<bool> onMarkerSelected;
   //final ValueChanged<List<ChessField>> onFigureSelected;
   final ValueChanged<bool> onFigureSelected;
 
@@ -43,23 +43,7 @@ class ChessField extends StatelessWidget {
 
   //BoardChangedCallback onBoardChanged;
 
-  Color? _getColor(BuildContext context) {
-    // The theme depends on the BuildContext because different
-    // parts of the tree can have different themes.
-    // The BuildContext indicates where the build is
-    // taking place and therefore which theme to use.
 
-    return color;
-  }
-
-  TextStyle? _getTextStyle(BuildContext context) {
-    if (!onBoard!) return null;
-
-    return const TextStyle(
-      color: Colors.black,
-      decoration: TextDecoration.lineThrough,
-    );
-  }
 
   void _handleTap() {
     print('ChessField was tapped!');
@@ -67,7 +51,7 @@ class ChessField extends StatelessWidget {
     //document.querySelector("#fromChessFieldDiv").setAttribute("value", ChessBoard.calcPos(figure.x, figure.y));
     if (marker != null) {
       changed = !changed;
-      onMarkerSelected(changed);
+     // onMarkerSelected(changed);
     } else if (figure != null) {
       chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
       // chessBoard.toChessField = "";
@@ -76,12 +60,12 @@ class ChessField extends StatelessWidget {
       if (moveList!.isNotEmpty) {
 //chessBoard.
         //chessBoard.chessFields
-        moveList[0].forEach( (element) { element.marker = Colors.green;});
-        moveList[1].forEach( (element) { element.marker = Colors.red;});
+        for (var element in moveList[0]) { element.marker = Colors.green;}
+        for (var element in moveList[1]) { element.marker = Colors.red;}
 
 
       }
-      List<ChessField> newList = new List.from(moveList[0])..addAll(moveList[1]);
+      //List<ChessField> newList = new List.from(moveList[0])..addAll(moveList[1]);
       changed = !changed;
       onFigureSelected(changed);
       //onChanged(!active);
