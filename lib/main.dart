@@ -11,7 +11,7 @@ List chessBoardList = [];
 
 List rammerDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
 Map rammerColors = {
-  "up": Colors.red,
+  "up": Colors.red[400],
   "right": Colors.green,
   "down": Colors.purple,
   "left": Colors.yellow,
@@ -821,7 +821,7 @@ moveDown(x) {
   for (int y = 2; y < 6; y++) {
     int pos = Board.calcPos(x, y);
     poss.add(pos);
-    print("pos ${pos}");
+    print("pos $pos");
   }
 
   Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
@@ -850,7 +850,7 @@ moveRight(y) {
   for (int x = 0; x < 8; x++) {
     int pos = Board.calcPos(x, y);
     poss.add(pos);
-    print("pos ${pos}");
+    print("pos $pos");
   }
 
   Figure? fig8 = chessBoard.chessFields[poss[7]].figure;
@@ -895,7 +895,7 @@ moveLeft(y) {
   for (int x = 0; x < 8; x++) {
     int pos = Board.calcPos(x, y);
     poss.add(pos);
-    print("pos ${pos}");
+    print("pos $pos");
   }
 
   Figure? fig8 = chessBoard.chessFields[poss[7]].figure;

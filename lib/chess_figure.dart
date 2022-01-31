@@ -7,7 +7,6 @@ import 'chess_field.dart';
 // ignore: must_be_immutable
 class Figure extends StatelessWidget {
   Figure({required Key key, this.type, this.color, required this.x, required this.y}) : super(key: key) {
-    className = "${type}_${color?.value}";
     int multi = 1;
     if (color == Colors.black) {
       multi = multi * -1;
@@ -27,7 +26,6 @@ class Figure extends StatelessWidget {
     }
   }
 
-  String className = "";
   final String? type;
   final Color? color;
   int value = 0;
@@ -632,7 +630,7 @@ class Figure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-//       onTap: () {
+       onTap: null,//() {
 //         print('ChessFigure was tapped!');
 //
 //         // document.querySelector("#fromChessFieldDiv").setAttribute("value", Board.calcPos(figure.x, figure.y));

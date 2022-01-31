@@ -90,7 +90,7 @@ class _BoardState extends State<Board> {
   void _handleChessFigureTapped(bool newValue) {
     setState(() {
       _changed = newValue;
-     // print("figure selected");
+      print("figure selected");
     });
   }
 
@@ -155,7 +155,7 @@ class _BoardState extends State<Board> {
             x: x,
             y: y,
             xyPosition: [x, y],
-            chessPosition: "${x} ${letter}",
+            chessPosition: "$x $letter",
             color: board[y][x],
             figure: figure,
             rammerField: rammerField,
@@ -168,7 +168,7 @@ class _BoardState extends State<Board> {
 
           chessBoard.fromChessFieldPosition = -1;
           chessBoard.toChessFieldPosition = -1;
-          chessBoardMap["${x} ${letter}"] = chessField;
+          chessBoardMap["$x $letter"] = chessField;
           chessBoardList.add(chessField);
           chessBoard.chessFields.add(chessField);
         }
