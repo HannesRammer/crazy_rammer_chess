@@ -71,7 +71,7 @@ List bottomFigures = [
   "knight",
   "rook"
 ];
-Board chessBoard = Board(chessFields: []);
+Board chessBoard = Board(chessFields: [],key: UniqueKey());
 
 /*
  Board(chessFields: [
@@ -125,85 +125,11 @@ Board chessBoard = Board(chessFields: []);
 * */
 
 void main() {
-  initBoard();
   runApp(
     MaterialApp(title: 'Rammer Chess', home: chessBoard),
   );
 }
 
-void initBoard() {
-  for (int y = 0; y < 8; y++) {
-    //row
-    String letter = "";
-    if (y == 0) {
-      letter = "a";
-    } else if (y == 1) {
-      letter = "b";
-    } else if (y == 2) {
-      letter = "c";
-    } else if (y == 3) {
-      letter = "d";
-    } else if (y == 4) {
-      letter = "e";
-    } else if (y == 5) {
-      letter = "f";
-    } else if (y == 6) {
-      letter = "g";
-    } else if (y == 7) {
-      letter = "h";
-    }
-    // for (int x = 0; x < 8; x++) {//column
-    for (int x = 0; x < 8; x++) {
-      //column
-      String special = "";
-      RammerField? rammerField = RammerField();
-
-      if (y == 0 || y == 1) {
-        special = "none";
-      } else if (y == 6 || y == 7) {
-        //bottom two rows
-        special = "none";
-      } else {
-        special = rammerDirections[rammerDirectionsCounter];
-
-        rammerField.x = x;
-        rammerField.y = y;
-        rammerField.special = special;
-        rammerField.color = rammerColors[special];
-        if (rammerDirectionsCounter == 5) {
-          rammerDirectionsCounter = 0;
-        } else {
-          rammerDirectionsCounter++;
-        }
-      }
-      Figure? figure = Figure(x: x, y: y);
-
-      if (Board.calcPos(x, y) < 16) {
-        figure = Figure(type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
-      } else if (Board.calcPos(x, y) >= 48) {
-        figure = Figure(type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
-      } else {
-        figure = null;
-      }
-      ChessField chessField = ChessField(
-        x: x,
-        y: y,
-        xyPosition: [x, y],
-        chessPosition: "${x} ${letter}",
-        color: board[y][x],
-        figure: figure,
-        rammerField: rammerField,
-        marker: "",
-      );
-
-      chessBoard.fromChessFieldPosition = -1 ;
-      chessBoard.toChessFieldPosition = -1 ;
-      chessBoardMap["${x} ${letter}"] = chessField;
-      chessBoardList.add(chessField);
-      chessBoard.chessFields.add(chessField);
-    }
-  }
-}
 
 void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   Figure? figureCopy = Figure.clone(fromChessField.figure);
@@ -226,12 +152,12 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   RammerField? rammerField = toChessField.rammerField;
   // int x = toChessField.x;
   //int y = toChessField.y;
-  // update();
+  // updateBoard();
   // rammerFieldDiv.onclick =  () {
   if (rammerField?.special == "up") {
     /*  setTimeout( () {
       moveUp(x);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -239,7 +165,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   } else if (rammerField?.special == "right") {
     /*setTimeout( () {
       moveRight(y);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -247,7 +173,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   } else if (rammerField?.special == "down") {
     /*setTimeout( () {
       moveDown(x);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -255,7 +181,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   } else if (rammerField?.special == "left") {
     /*setTimeout( () {
       moveLeft(y);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -263,7 +189,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   } else if (rammerField?.special == "clockwise") {
     /*setTimeout( () {
       moveClockwise(x, y);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -271,7 +197,7 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   } else if (rammerField?.special == "anticlockwise") {
     /*setTimeout( () {
       moveAntiClockwise(x, y);
-      update();
+      updateBoard();
       if (playerType == "human") {
         setTimeout(aiMove, 1000);
       }
@@ -284,11 +210,40 @@ void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
   }
 
   // };
-  // update();
+  // updateBoard();
 }
 
-void addMove(ChessField chessField, marker) {
+void addMove(ChessField chessField, Color marker) {
   chessField.marker = marker;
+}
+
+updateBoard() {
+  // int fromChessFieldDiv = document.createElement("input");
+
+  // fromChessFieldDiv.id = "fromChessFieldDiv";
+  // fromChessFieldDiv.setAttribute("type", "hidden");
+  // int toChessFieldDiv = document.createElement("div");
+  // toChessFieldDiv.setAttribute("type", "hidden");
+  // toChessFieldDiv.id = "toChessFieldDiv";
+
+
+  // chessBoard.chessFields.forEach( (chessField, i) {
+  //   int chessFieldDiv = createChessFieldDiv(chessField);
+  //   RammerField rammerFieldDiv = createRammerFieldDiv(chessField.rammerField, chessField.x, chessField.y);
+  //   int figureDiv;
+  //
+  //   chessFieldDiv.appendChild(rammerFieldDiv);
+  //   if (chessField.figure == null) {
+  //     figureDiv = createFigureDiv(chessField.figure, chessField.x, chessField.y);
+  //     chessFieldDiv.appendChild(figureDiv);
+  //   }
+  //
+  //   chessBoardDiv.appendChild(chessFieldDiv);
+  //   // print('%d: %s', i, chessField.toString());
+  // });
+
+
+  // document.body.appendChild(chessBoardDiv);
 }
 
 /*

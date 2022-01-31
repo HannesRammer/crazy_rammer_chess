@@ -1,33 +1,45 @@
 import 'package:flutter/material.dart';
+import "main.dart";
+import "chessBoard.dart";
 import "chessFigure.dart";
 import "rammerField.dart";
 
-typedef BoardChangedCallback = Function(ChessField chessField, bool onBoard);
+//typedef BoardChangedCallback = Function(ChessField chessField, bool onBoard);
 
 // ignore: must_be_immutable
 class ChessField extends StatelessWidget {
   ChessField({
-    Key? key,
-    this.x,
-    this.y,
+    required Key key,
+    required this.x,
+    required this.y,
     this.xyPosition,
     this.chessPosition,
     this.color,
     this.rammerField,
+    required this.changed,
     this.figure,
     this.marker,
-    //  required this.onBoardChanged,
+    required this.onMarkerSelected,
+    required this.onFigureSelected,
   }) : super(key: key);
 
-  int? x;
-  int? y;
+  int x;
+  int y;
   List? xyPosition;
   String? chessPosition;
   Color? color;
   RammerField? rammerField;
+  bool changed;
   Figure? figure;
-  String? marker;
+  Color? marker;
   final bool? onBoard = true;
+
+  // final ValueChanged<bool> onChanged;
+  final ValueChanged<bool> onMarkerSelected;
+  //final ValueChanged<List<ChessField>> onFigureSelected;
+  final ValueChanged<bool> onFigureSelected;
+
+  // final ValueChanged<bool> onBoardChanged;
 
   //BoardChangedCallback onBoardChanged;
 
@@ -49,43 +61,49 @@ class ChessField extends StatelessWidget {
     );
   }
 
+  void _handleTap() {
+    print('ChessField was tapped!');
+
+    //document.querySelector("#fromChessFieldDiv").setAttribute("value", ChessBoard.calcPos(figure.x, figure.y));
+    if (marker != null) {
+      changed = !changed;
+      onMarkerSelected(changed);
+    } else if (figure != null) {
+      chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
+      // chessBoard.toChessField = "";
+      chessBoard.removeMoves();
+      List<List<ChessField>>? moveList = figure?.getPossibleMoves(x, y, chessBoard);
+      if (moveList!.isNotEmpty) {
+//chessBoard.
+        //chessBoard.chessFields
+        moveList[0].forEach( (element) { element.marker = Colors.green;});
+        moveList[1].forEach( (element) { element.marker = Colors.red;});
+
+
+      }
+      List<ChessField> newList = new List.from(moveList[0])..addAll(moveList[1]);
+      changed = !changed;
+      onFigureSelected(changed);
+      //onChanged(!active);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+  print("building chessField");
     return GestureDetector(
-      // onTap: () {
-      //   print('ChessField was tapped!');
-        // document.querySelector("#fromChessFieldDiv").setAttribute("value", ChessBoard.calcPos(figure.x, figure.y));
-        //     if (rammerField?.figure.color == chessBoard.colorToMove) {
-        /*  chessBoard.fromChessField = ChessBoard.calcPos(x, y);
-          // chessBoard.toChessField = "";
-          chessBoard.removeMoves();
-          int moveList = figure.getPossibleMoves(x, y, chessBoard);
-          if (moveList.length > 0) {
-            moveList[0].forEach((element) => {
-            addMove(element, "#00ff1461");
-                print("moveList:${element}")
-          });
-    moveList[1].forEach((element) => {
-    addMove(element, "#ff001842");
-    print("attackList:${element}")
-    });
-    update();
-*/
-      // },
+      onTap: _handleTap,
       child: Container(
-
           padding: const EdgeInsets.all(8.0),
           //margin: const EdgeInsets.symmetric(horizontal: 8.0),
           decoration: BoxDecoration(
-            color: color,
+            color: marker ?? color,
           ),
           child: FittedBox(
             child: Stack(
               children: [
-                Positioned(child: SizedBox(width: 100,
-                    height: 100,child: rammerField?.build(context))),
-                Positioned(child:  SizedBox(width: 100,
-                    height: 100,child: figure?.build(context))),
+                Positioned(child: SizedBox(width: 100, height: 100, child: rammerField?.build(context))),
+                Positioned(child: SizedBox(width: 100, height: 100, child: figure?.build(context))),
               ],
             ),
           )
