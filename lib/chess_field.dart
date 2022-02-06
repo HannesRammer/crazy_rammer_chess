@@ -9,30 +9,30 @@ import "rammer_field.dart";
 // ignore: must_be_immutable
 class ChessField extends StatelessWidget {
   ChessField({
-    required Key key,
+     Key? key,
     required this.x,
     required this.y,
     this.xyPosition,
     this.chessPosition,
     this.color,
     this.rammerField,
-    required this.changed,
+     this.changed = false,
     this.figure,
     this.marker,
     //required this.onMarkerSelected,
     required this.onFigureSelected,
   }) : super(key: key);
-
   int x;
   int y;
   List? xyPosition;
   String? chessPosition;
   Color? color;
   RammerField? rammerField;
-  bool changed;
+  final bool changed ;
   Figure? figure;
   Color? marker;
   final bool? onBoard = true;
+
 
   // final ValueChanged<bool> onChanged;
   //final ValueChanged<bool> onMarkerSelected;
@@ -50,7 +50,7 @@ class ChessField extends StatelessWidget {
 
     //document.querySelector("#fromChessFieldDiv").setAttribute("value", ChessBoard.calcPos(figure.x, figure.y));
     if (marker != null) {
-      changed = !changed;
+      //changed = !changed;
      // onMarkerSelected(changed);
     } else if (figure != null) {
       chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
@@ -66,8 +66,8 @@ class ChessField extends StatelessWidget {
 
       }
       //List<ChessField> newList = new List.from(moveList[0])..addAll(moveList[1]);
-      changed = !changed;
-      onFigureSelected(changed);
+      //changed = !changed;
+      onFigureSelected(!changed);
       //onChanged(!active);
     }
   }
@@ -75,6 +75,7 @@ class ChessField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   print("building chessField");
+  print(toS());
     return GestureDetector(
       onTap: _handleTap,
       child: Container(
@@ -99,7 +100,7 @@ class ChessField extends StatelessWidget {
 
   String toS() {
     return '''xy:$xyPosition color:$color marker:$marker
-    |----figure:$rammerField
+    |----figure:$figure
     |----rammerField:${rammerField.toString()} ''';
   }
 }

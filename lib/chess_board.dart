@@ -6,7 +6,7 @@ import 'main.dart';
 
 // ignore: must_be_immutable
 class Board extends StatefulWidget {
-  Board({required this.chessFields, required Key key}) : super(key: key) {
+  Board({required this.chessFields, Key? key}) : super(key: key) {
     // TODO: implement
   }
 
@@ -88,10 +88,10 @@ class _BoardState extends State<Board> {
 
   //void _handleChessFigureTapped(List<ChessField> newValue) {
   void _handleChessFigureTapped(bool newValue) {
-    setState(() {
-      _changed = newValue;
-      print("figure selected");
-    });
+    _changed = newValue;
+    //widget.colorToMove =
+    print("figure selected");
+    setState(() {});
   }
 
   void initBoard() {
@@ -193,14 +193,23 @@ class _BoardState extends State<Board> {
   // }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+
     initBoard();
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('chess_board.dart'),
       ),
-      body: GridView.count(
+      body:
+      // widget.chessFields.toList().first,
+      GridView.count(
         crossAxisCount: 8,
         childAspectRatio: 1.0,
         padding: const EdgeInsets.all(4.0),
