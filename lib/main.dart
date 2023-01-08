@@ -131,87 +131,53 @@ void main() {
 }
 
 
-void makeMove(ChessField fromChessField, ChessField toChessField, playerType) {
-  Figure figureCopy = Figure.clone(fromChessField.figure, key: fromChessField.figure!.key!,);
+void makeMove(ChessField fromChessField, ChessField toChessField, String playerType) {
+  var figureCopy = fromChessField.figure;
   figureCopy.hasMoved = true;
   toChessField.figure = figureCopy;
   fromChessField.figure = null;
-  if (chessBoard.colorToMove == Colors.white) {
-    chessBoard.colorToMove = Colors.black;
-  } else if (chessBoard.colorToMove == Colors.black) {
-    chessBoard.colorToMove = Colors.white;
+
+  if (chessBoard.colorToMove == "white") {
+    chessBoard.colorToMove = "black";
   } else {
-    print("problem no color to move");
-  }
-  print("chessBoard.colorToMove ${chessBoard.colorToMove}");
-  chessBoard.removeMoves();
-  //RammerField?rammerFieldDiv = document.querySelector("#${toChessField.id} .rammer_field");//rammerField.click();
-  // if (rammerFieldDiv == null) {
-  //   rammerFieldDiv.click();
-  // }//rammerField.click();
-  RammerField? rammerField = toChessField.rammerField;
-  // int x = toChessField.x;
-  //int y = toChessField.y;
-  // updateBoard();
-  // rammerFieldDiv.onclick =  () {
-  if (rammerField?.special == "up") {
-    /*  setTimeout( () {
-      moveUp(x);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  } else if (rammerField?.special == "right") {
-    /*setTimeout( () {
-      moveRight(y);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  } else if (rammerField?.special == "down") {
-    /*setTimeout( () {
-      moveDown(x);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  } else if (rammerField?.special == "left") {
-    /*setTimeout( () {
-      moveLeft(y);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  } else if (rammerField?.special == "clockwise") {
-    /*setTimeout( () {
-      moveClockwise(x, y);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  } else if (rammerField?.special == "anticlockwise") {
-    /*setTimeout( () {
-      moveAntiClockwise(x, y);
-      updateBoard();
-      if (playerType == "human") {
-        setTimeout(aiMove, 1000);
-      }
-    }, 500);*/
-  }
-  if (rammerField?.special == null) {
-    /*if (playerType == "human") {
-      setTimeout(aiMove, 1000);
-    }*/
+    chessBoard.colorToMove = "white";
   }
 
-  // };
-  // updateBoard();
+  chessBoard.removeMoves();
+  toChessField.rubikField.click();
+
+  var x = toChessField.x;
+  var y = toChessField.y;
+  update();
+
+  switch (toChessField.rubikField.special) {
+    case "up":
+      moveUp(x);
+      break;
+    case "right":
+      moveRight(y);
+      break;
+    case "down":
+      moveDown(x);
+      break;
+    case "left":
+      moveLeft(y);
+      break;
+    case "clockwise":
+      moveClockwise(x, y);
+      break;
+    case "anticlockwise":
+      moveAntiClockwise(x, y);
+      break;
+  }
+
+  if (playerType == "human") {
+    aiMove();
+  }
+
+  updateBoard();
 }
+
 
 void addMove(ChessField chessField, Color marker) {
   chessField.marker = marker;
