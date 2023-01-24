@@ -6,22 +6,30 @@ class ChessBoard {
         this.chessFields = chessFields;
     }
 
-    getPossibleMoves(x,y,chessBoard) {
-        let possibleMoves = [];
-        let pMap = {};
-        for (let x = 0; x < 8; x++) {
-            for (let y = 0; y < 8; y++) {
-                let pos = ChessBoard.calcPos(x, y);
-                let figure = this.chessFields[pos].figure;
-                if (figure !== undefined) {
-                    possibleMoves = figure.getPossibleMoves(x, y,this);
-                    pMap[`${x}_${y}`] = possibleMoves;
-                }
-            }
-        }
-        //return possibleMoves;
-        return pMap;
+    copy() {
+        let chessFields = [];
+        this.chessFields.forEach(chessField => {
+            chessFields.push(chessField.copy());
+        });
+        return new ChessBoard(chessFields)
     }
+
+    // getPossibleMoves(x,y) {
+    //     let possibleMoves = [];
+    //     let pMap = {};
+    //     for (let x = 0; x < 8; x++) {
+    //         for (let y = 0; y < 8; y++) {
+    //             let pos = ChessBoard.calcPos(x, y);
+    //             let figure = this.chessFields[pos].figure;
+    //             if (figure !== undefined) {
+    //                 possibleMoves = figure.getPossibleMoves(x, y,this);
+    //                 pMap[`${x}_${y}`] = possibleMoves;
+    //             }
+    //         }
+    //     }
+    //     //return possibleMoves;
+    //     return pMap;
+    // }
 
     removeMoves() {
         this.chessFields.forEach(chessField => {
@@ -83,6 +91,22 @@ class ChessField {
         this.marker = marker;
     }
 
+    copy() {
+        return new ChessField(this.x, this.y, this.xyPosition, this.chessPosition, this.color, this.figure ? this.figure.copy() : null, this.rubikField ? this.rubikField.copy() : null, this.marker);
+    }
+
+    copyConstructor(chessField) {
+        this.id = chessField.id;
+        this.x = chessField.x;
+        this.y = chessField.y;
+        this.xyPosition = chessField.xyPosition;
+        this.chessPosition = chessField.chessPosition;
+        this.color = chessField.color;
+        this.figure = chessField.figure.copy();
+        this.rubikField = chessField.rubikField.copy();
+        this.marker = chessField.marker;
+    }
+
     toString() {
         return `xy:${this.xyPosition} color:${this.color} marker:${this.marker}
                  |----figure:${this.rubikField}
@@ -121,20 +145,24 @@ class Figure {
         }
     }
 
-    getPossibleMoves(x, y,chessBoard) {
+    copy() {
+        return new Figure(this.type, this.color);
+    }
+
+    getPossibleMoves(x, y, chessBoard) {
         let possibleMoves = [];
         if (this.type === "rook") {
-            possibleMoves = Figure.getRookMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getRookMoves(this, x, y, chessBoard);
         } else if (this.type === "knight") {
-            possibleMoves = Figure.getKnightMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getKnightMoves(this, x, y, chessBoard);
         } else if (this.type === "bishop") {
-            possibleMoves = Figure.getBishopMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getBishopMoves(this, x, y, chessBoard);
         } else if (this.type === "queen") {
-            possibleMoves = Figure.getQueenMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getQueenMoves(this, x, y, chessBoard);
         } else if (this.type === "king") {
-            possibleMoves = Figure.getKingMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getKingMoves(this, x, y, chessBoard);
         } else if (this.type === "pawn") {
-            possibleMoves = Figure.getPawnMoves(this, x, y,chessBoard);
+            possibleMoves = Figure.getPawnMoves(this, x, y, chessBoard);
         }
         return possibleMoves;
     }
@@ -651,11 +679,13 @@ class Figure {
                     chessField2 = chessBoard.getChessField(ChessBoard.calcPos(x, y + 2));
                 }
                 let chessFieldFigure1 = chessField1.figure;
-                let chessFieldFigure2 = chessField2.figure;
-                let isEmpty1 = chessFieldFigure1 === undefined;
-                let isEmpty2 = chessFieldFigure2 === undefined;
-                if (isEmpty1 && isEmpty2) {
-                    possibleMoves.push(chessField2);
+                if (chessField2 !== undefined) {
+                    let chessFieldFigure2 = chessField2.figure;
+                    let isEmpty1 = chessFieldFigure1 === undefined;
+                    let isEmpty2 = chessFieldFigure2 === undefined;
+                    if (isEmpty1 && isEmpty2) {
+                        possibleMoves.push(chessField2);
+                    }
                 }
             }
 //attack right
@@ -664,6 +694,7 @@ class Figure {
             } else {
                 chessField = chessBoard.getChessField(ChessBoard.calcPos(x + 1, y + 1));
             }
+            //if (chessField !== undefined) {
             chessFieldFigure = chessField.figure;
             if (chessFieldFigure === undefined || chessFieldFigure === null) {
                 isEmpty = true;
@@ -676,6 +707,7 @@ class Figure {
                     possibleAttacks.push(chessField);
                 }
             }
+            //}
 //attack left
             isEmpty = false;
             if (pawn.color === "white") {
@@ -683,6 +715,8 @@ class Figure {
             } else {
                 chessField = chessBoard.getChessField(ChessBoard.calcPos(x - 1, y + 1));
             }
+            // if (chessField !== undefined) {
+
             chessFieldFigure = chessField.figure;
             if (chessFieldFigure === undefined || chessFieldFigure === null) {
                 isEmpty = true;
@@ -693,6 +727,8 @@ class Figure {
                     possibleAttacks.push(chessField);
                 }
             }
+            // }
+
         }
         return [possibleMoves, possibleAttacks];
     }
@@ -715,6 +751,10 @@ class RubikField {
         this.special = special;
     }
 
+    copy() {
+        return new RubikField(this.x, this.y, this.special);
+    }
+
     toString() {
         return `xy:${this.x}${this.y} special:${this.special}`;
     }
@@ -725,6 +765,7 @@ let chessBoardMap = {};
 let chessBoardList = [];
 
 let rubikDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
+//let rubikDirections = ["clockwise", "clockwise", "down", "left", "clockwise", "right"];
 let rubikDirectionsCounter = 0;
 let board = [["w", "s", "w", "s", "w", "s", "w", "s"],
     ["s", "w", "s", "w", "s", "w", "s", "w"],
@@ -739,8 +780,22 @@ let board = [["w", "s", "w", "s", "w", "s", "w", "s"],
     ["s", "w", "s", "w", "s", "w", "s", "w"]];
 
 
-let whiteFiguresCode = {"king": "&#x2654;", "queen": "&#x2655;", "rook": "&#x2656;", "bishop": "&#x2657;", "knight": "&#x2658;", "pawn": "&#x2659;"};
-let blackFiguresCode = {"king": "&#x265A;", "queen": "&#x265B;", "rook": "&#x265C;", "bishop": "&#x265D;", "knight": "&#x265E;", "pawn": "&#x265F;"};
+let whiteFiguresCode = {
+    "king": "&#x2654;",
+    "queen": "&#x2655;",
+    "rook": "&#x2656;",
+    "bishop": "&#x2657;",
+    "knight": "&#x2658;",
+    "pawn": "&#x2659;"
+};
+let blackFiguresCode = {
+    "king": "&#x265A;",
+    "queen": "&#x265B;",
+    "rook": "&#x265C;",
+    "bishop": "&#x265D;",
+    "knight": "&#x265E;",
+    "pawn": "&#x265F;"
+};
 
 let topFigures = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook",
     "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn"];
@@ -881,10 +936,12 @@ function addMove(chessField, marker) {
 }
 
 function makeMove(fromChessField, toChessField, playerType) {
-    let figureCopy = {...fromChessField.figure};
-    figureCopy.hasMoved = true;
-    toChessField.figure = figureCopy;
+    let figure = fromChessField.figure;
+    figure.hasMoved = true;
+    toChessField.figure = figure;
     fromChessField.figure = undefined;
+    toChessField.figure.hasMoved = true;
+
     if (chessBoard.colorToMove === "white") {
         chessBoard.colorToMove = "black";
     } else if (chessBoard.colorToMove === "black") {
@@ -910,7 +967,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     } else if (rubikField.special === "right") {
         setTimeout(function () {
             moveRight(y);
@@ -918,7 +975,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     } else if (rubikField.special === "down") {
         setTimeout(function () {
             moveDown(x);
@@ -926,7 +983,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     } else if (rubikField.special === "left") {
         setTimeout(function () {
             moveLeft(y);
@@ -934,7 +991,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     } else if (rubikField.special === "clockwise") {
         setTimeout(function () {
             moveClockwise(x, y);
@@ -942,7 +999,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     } else if (rubikField.special === "anticlockwise") {
         setTimeout(function () {
             moveAntiClockwise(x, y);
@@ -950,7 +1007,7 @@ function makeMove(fromChessField, toChessField, playerType) {
             if (playerType === "human") {
                 setTimeout(aiMove, 1000);
             }
-        }, 500);
+        }, 1000);
     }
     if (rubikField.special === undefined) {
         if (playerType === "human") {
@@ -959,7 +1016,7 @@ function makeMove(fromChessField, toChessField, playerType) {
     }
 
     // };
-    // update();
+    update();
 
 }
 
@@ -971,7 +1028,7 @@ function createFigureDiv(figure, x, y) {
     if (figure.color === "white") {
         figureDiv.innerHTML = `${whiteFiguresCode[figure.type]}`;
         figureDiv.style.textShadow = `1px 1px 1px white, 1px -1px 3px white, -1px 1px 1px white, -1px -1px 1px white`;
-    } else if (figure.color === "black"){
+    } else if (figure.color === "black") {
         figureDiv.innerHTML = `${blackFiguresCode[figure.type]}`;
         figureDiv.style.textShadow = `1px 1px 1px white, 1px -1px 3px white, -1px 1px 1px white, -1px -1px 1px white`;
     }
@@ -981,7 +1038,7 @@ function createFigureDiv(figure, x, y) {
             chessBoard.fromChessField = ChessBoard.calcPos(x, y);
             // chessBoard.toChessField = "";
             chessBoard.removeMoves();
-            let moveList = figure.getPossibleMoves(x, y,chessBoard);
+            let moveList = figure.getPossibleMoves(x, y, chessBoard);
             if (moveList.length > 0) {
                 moveList[0].forEach((element) => {
                     addMove(element, "#00ff1461");
@@ -1084,7 +1141,9 @@ function createChessFieldDiv(chessField) {
 }
 
 function aiMove() {
-    let bestMove = chess_ai.calculateBestMove(chessBoard);
+    //let bestMove = chess_ai.calculateBestMove(chessBoard);
+    let bestMove = chess_ai.getBestMove(chessBoard);
+    //getBestMove
     let currentX = bestMove["x"];
     let currentY = bestMove["y"];
     let currentPos = ChessBoard.calcPos(bestMove["x"], bestMove["y"]);
@@ -1173,586 +1232,257 @@ function appendStyle() {
 }
 
 
-function moveClockwise(x, y) {
-    let poss = [];
-    if (x === 0 && y === 2) { //1
-        poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        poss.push(ChessBoard.calcPos(x + 1, y + 1));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig1;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
-
-    } else if (x >= 1 && x <= 6 && y === 2) {//2
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        poss.push(ChessBoard.calcPos(x + 1, y + 1));
-
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig4;
-        chessBoard.chessFields[poss[3]].figure = fig5;
-        chessBoard.chessFields[poss[4]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub4;
-        chessBoard.chessFields[poss[3]].rubikField = rub5;
-        chessBoard.chessFields[poss[4]].rubikField = rub2;
-
-    } else if (x === 7 && y === 2) {//3
-
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig1;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
-    } else if ((x === 0 && y === 3) || (x === 0 && y === 4)) {//4
-
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        poss.push(ChessBoard.calcPos(x + 1, y + 1));
-
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig4;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-        chessBoard.chessFields[poss[3]].figure = fig5;
-        chessBoard.chessFields[poss[4]].figure = fig3;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub4;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-        chessBoard.chessFields[poss[3]].rubikField = rub5;
-        chessBoard.chessFields[poss[4]].rubikField = rub3;
-
-    } else if ((x >= 1 && x <= 6 && y === 3) || (x >= 1 && x <= 6 && y === 4)) {//5
-
-        poss.push(ChessBoard.calcPos(x - 1, y - 1));
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        poss.push(ChessBoard.calcPos(x + 1, y + 1));
-
-        let fig8 = chessBoard.chessFields[poss[7]].figure;
-        let fig7 = chessBoard.chessFields[poss[6]].figure;
-        let fig6 = chessBoard.chessFields[poss[5]].figure;
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub8 = chessBoard.chessFields[poss[7]].rubikField;
-        let rub7 = chessBoard.chessFields[poss[6]].rubikField;
-        let rub6 = chessBoard.chessFields[poss[5]].rubikField;
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig4;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-        chessBoard.chessFields[poss[3]].figure = fig6;
-        chessBoard.chessFields[poss[4]].figure = fig3;
-        chessBoard.chessFields[poss[5]].figure = fig7;
-        chessBoard.chessFields[poss[6]].figure = fig8;
-        chessBoard.chessFields[poss[7]].figure = fig5;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub4;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-        chessBoard.chessFields[poss[3]].rubikField = rub6;
-        chessBoard.chessFields[poss[4]].rubikField = rub3;
-        chessBoard.chessFields[poss[5]].rubikField = rub7;
-        chessBoard.chessFields[poss[6]].rubikField = rub8;
-        chessBoard.chessFields[poss[7]].rubikField = rub5;
-    } else if ((x === 7 && y === 3) || (x === 7 && y === 4)) {//6
-
-        poss.push(ChessBoard.calcPos(x - 1, y - 1));
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig4;
-        chessBoard.chessFields[poss[3]].figure = fig5;
-        chessBoard.chessFields[poss[4]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub4;
-        chessBoard.chessFields[poss[3]].rubikField = rub5;
-        chessBoard.chessFields[poss[4]].rubikField = rub2;
-
-    } else if (x === 0 && y === 5) {//7
-
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-    } else if (x >= 1 && x <= 6 && y === 5) {//8
-
-        poss.push(ChessBoard.calcPos(x - 1, y - 1));
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x + 1, y));
-
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig4;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-        chessBoard.chessFields[poss[3]].figure = fig5;
-        chessBoard.chessFields[poss[4]].figure = fig3;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub4;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-        chessBoard.chessFields[poss[3]].rubikField = rub5;
-        chessBoard.chessFields[poss[4]].rubikField = rub3;
-
-    } else if (x === 7 && y === 5) {//9
-
-        poss.push(ChessBoard.calcPos(x - 1, y - 1));
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-    }
-
-}
-
 function moveAntiClockwise(x, y) {
     let poss = [];
-    if (x === 0 && y === 2) { //1
+    if (x === 0 && y === 2) { //1 r,rb,b
         poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x, y + 1));
         poss.push(ChessBoard.calcPos(x + 1, y + 1));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
+        poss.push(ChessBoard.calcPos(x, y + 1));
+        let coordinateArray = [[0, 2], [1, 0], [2, 1]];
+        moveUsingCoordinateArray(poss, coordinateArray);
 
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
+    } else if (x >= 1 && x <= 6 && y === 2) {//2 r,rb,b,lb,l
 
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-
-    } else if (x >= 1 && x <= 6 && y === 2) {//2
-        poss.push(ChessBoard.calcPos(x - 1, y));
         poss.push(ChessBoard.calcPos(x + 1, y));
+        poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+
         poss.push(ChessBoard.calcPos(x - 1, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y));
+
+        let coordinateArray = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+    } else if (x === 7 && y === 2) {//3 b,lb,l
         poss.push(ChessBoard.calcPos(x, y + 1));
-        poss.push(ChessBoard.calcPos(x + 1, y + 1));
-
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig5;
-        chessBoard.chessFields[poss[2]].figure = fig1;
-        chessBoard.chessFields[poss[3]].figure = fig3;
-        chessBoard.chessFields[poss[4]].figure = fig4;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub5;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
-        chessBoard.chessFields[poss[3]].rubikField = rub3;
-        chessBoard.chessFields[poss[4]].rubikField = rub4;
-
-    } else if (x === 7 && y === 2) {//3
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
 
         poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig3;
-        chessBoard.chessFields[poss[1]].figure = fig1;
-        chessBoard.chessFields[poss[2]].figure = fig2;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub3;
-        chessBoard.chessFields[poss[1]].rubikField = rub1;
-        chessBoard.chessFields[poss[2]].rubikField = rub2;
-    } else if ((x === 0 && y === 3) || (x === 0 && y === 4)) {//4
+        let coordinateArray = [[0, 2], [1, 0], [2, 1]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if ((x === 0 && y === 3) || (x === 0 && y === 4)) {//4 t,tr,r,rb,b
 
         poss.push(ChessBoard.calcPos(x, y - 1));
         poss.push(ChessBoard.calcPos(x + 1, y - 1));
         poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x, y + 1));
         poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
 
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
+        let coordinateArray = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
+        moveUsingCoordinateArray(poss, coordinateArray);
 
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
 
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig5;
-        chessBoard.chessFields[poss[3]].figure = fig1;
-        chessBoard.chessFields[poss[4]].figure = fig4;
+    } else if ((x >= 1 && x <= 6 && y === 3) || (x >= 1 && x <= 6 && y === 4)) {//5  l,lt,t,tr,r,rb,b,lb
 
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub5;
-        chessBoard.chessFields[poss[3]].rubikField = rub1;
-        chessBoard.chessFields[poss[4]].rubikField = rub4;
-
-    } else if ((x >= 1 && x <= 6 && y === 3) || (x >= 1 && x <= 6 && y === 4)) {//5
+        poss.push(ChessBoard.calcPos(x - 1, y));
 
         poss.push(ChessBoard.calcPos(x - 1, y - 1));
         poss.push(ChessBoard.calcPos(x, y - 1));
+
         poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
         poss.push(ChessBoard.calcPos(x + 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
-        poss.push(ChessBoard.calcPos(x, y + 1));
         poss.push(ChessBoard.calcPos(x + 1, y + 1));
-
-        let fig8 = chessBoard.chessFields[poss[7]].figure;
-        let fig7 = chessBoard.chessFields[poss[6]].figure;
-        let fig6 = chessBoard.chessFields[poss[5]].figure;
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-        let rub8 = chessBoard.chessFields[poss[7]].rubikField;
-        let rub7 = chessBoard.chessFields[poss[6]].rubikField;
-        let rub6 = chessBoard.chessFields[poss[5]].rubikField;
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig5;
-        chessBoard.chessFields[poss[3]].figure = fig1;
-        chessBoard.chessFields[poss[4]].figure = fig8;
-        chessBoard.chessFields[poss[5]].figure = fig4;
-        chessBoard.chessFields[poss[6]].figure = fig6;
-        chessBoard.chessFields[poss[7]].figure = fig7;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub5;
-        chessBoard.chessFields[poss[3]].rubikField = rub1;
-        chessBoard.chessFields[poss[4]].rubikField = rub8;
-        chessBoard.chessFields[poss[5]].rubikField = rub4;
-        chessBoard.chessFields[poss[6]].rubikField = rub6;
-        chessBoard.chessFields[poss[7]].rubikField = rub7;
-    } else if ((x === 7 && y === 3) || (x === 7 && y === 4)) {//6
-
-        poss.push(ChessBoard.calcPos(x - 1, y - 1));
-        poss.push(ChessBoard.calcPos(x, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
-        poss.push(ChessBoard.calcPos(x - 1, y + 1));
         poss.push(ChessBoard.calcPos(x, y + 1));
 
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
 
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
+        let coordinateArray = [[0, 7], [1, 0], [2, 1], [3, 2], [4, 3], [5, 4], [6, 5], [7, 6]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if ((x === 7 && y === 3) || (x === 7 && y === 4)) {//6 b,lb,l,tl,t,tr,
 
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig5;
-        chessBoard.chessFields[poss[2]].figure = fig1;
-        chessBoard.chessFields[poss[3]].figure = fig3;
-        chessBoard.chessFields[poss[4]].figure = fig4;
+        poss.push(ChessBoard.calcPos(x, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y));
 
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub5;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
-        chessBoard.chessFields[poss[3]].rubikField = rub3;
-        chessBoard.chessFields[poss[4]].rubikField = rub4;
+        poss.push(ChessBoard.calcPos(x - 1, y - 1));
+        poss.push(ChessBoard.calcPos(x, y - 1));
 
-    } else if (x === 0 && y === 5) {//7
+        let coordinateArray = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+    } else if (x === 0 && y === 5) {//7 t,tr,r
 
         poss.push(ChessBoard.calcPos(x, y - 1));
         poss.push(ChessBoard.calcPos(x + 1, y - 1));
         poss.push(ChessBoard.calcPos(x + 1, y));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
+        let coordinateArray = [[0, 2], [1, 0], [2, 1]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if (x >= 1 && x <= 6 && y === 5) {//8 l,tl,t,tr,r
 
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig1;
-
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
-    } else if (x >= 1 && x <= 6 && y === 5) {//8
-
+        poss.push(ChessBoard.calcPos(x - 1, y));
         poss.push(ChessBoard.calcPos(x - 1, y - 1));
         poss.push(ChessBoard.calcPos(x, y - 1));
         poss.push(ChessBoard.calcPos(x + 1, y - 1));
-        poss.push(ChessBoard.calcPos(x - 1, y));
         poss.push(ChessBoard.calcPos(x + 1, y));
 
-        let fig5 = chessBoard.chessFields[poss[4]].figure;
-        let fig4 = chessBoard.chessFields[poss[3]].figure;
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
+        let coordinateArray = [[0, 4], [1, 0], [2, 1], [3, 2], [4, 3]];
 
-        let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-        let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
+        moveUsingCoordinateArray(poss, coordinateArray);
 
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig5;
-        chessBoard.chessFields[poss[3]].figure = fig1;
-        chessBoard.chessFields[poss[4]].figure = fig4;
+    } else if (x === 7 && y === 5) {//9 l,tl,t
 
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub5;
-        chessBoard.chessFields[poss[3]].rubikField = rub1;
-        chessBoard.chessFields[poss[4]].rubikField = rub4;
+        poss.push(ChessBoard.calcPos(x - 1, y));
+        poss.push(ChessBoard.calcPos(x - 1, y - 1));
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        let coordinateArray = [[0, 2], [1, 0], [2, 1]];
+        moveUsingCoordinateArray(poss, coordinateArray);
 
-    } else if (x === 7 && y === 5) {//9
+    }
+}
+
+function moveClockwise(x, y) {
+    let poss = [];
+    if (x === 0 && y === 2) { //1 r,rb,b
+        poss.push(ChessBoard.calcPos(x + 1, y));
+        poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+        let coordinateArray = [[0, 1], [1, 2], [2, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+    } else if (x >= 1 && x <= 6 && y === 2) {//2 r,rb,b,lb,l
+
+        poss.push(ChessBoard.calcPos(x + 1, y));
+        poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y));
+
+        let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+    } else if (x === 7 && y === 2) {//3 b,lb,l
+        poss.push(ChessBoard.calcPos(x, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
+
+        poss.push(ChessBoard.calcPos(x - 1, y));
+        let coordinateArray = [[0, 1], [1, 2], [2, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if ((x === 0 && y === 3) || (x === 0 && y === 4)) {//4 t,tr,r,rb,b
+
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y));
+        poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+
+        let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+
+    } else if ((x >= 1 && x <= 6 && y === 3) || (x >= 1 && x <= 6 && y === 4)) {//5  l,lt,t,tr,r,rb,b,lb
+
+        poss.push(ChessBoard.calcPos(x - 1, y));
 
         poss.push(ChessBoard.calcPos(x - 1, y - 1));
         poss.push(ChessBoard.calcPos(x, y - 1));
+
+        poss.push(ChessBoard.calcPos(x + 1, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y));
+        poss.push(ChessBoard.calcPos(x + 1, y + 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
+
+        let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if ((x === 7 && y === 3) || (x === 7 && y === 4)) {//6 l,tl,t,b,lb,
+
         poss.push(ChessBoard.calcPos(x - 1, y));
-        let fig3 = chessBoard.chessFields[poss[2]].figure;
-        let fig2 = chessBoard.chessFields[poss[1]].figure;
-        let fig1 = chessBoard.chessFields[poss[0]].figure;
 
-        let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-        let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-        let rub1 = chessBoard.chessFields[poss[0]].rubikField;
+        poss.push(ChessBoard.calcPos(x - 1, y - 1));
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        poss.push(ChessBoard.calcPos(x, y + 1));
+        poss.push(ChessBoard.calcPos(x - 1, y + 1));
 
-        chessBoard.chessFields[poss[0]].figure = fig2;
-        chessBoard.chessFields[poss[1]].figure = fig3;
-        chessBoard.chessFields[poss[2]].figure = fig1;
+        let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
 
-        chessBoard.chessFields[poss[0]].rubikField = rub2;
-        chessBoard.chessFields[poss[1]].rubikField = rub3;
-        chessBoard.chessFields[poss[2]].rubikField = rub1;
+    } else if (x === 0 && y === 5) {//7 t,tr,r
+
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y));
+        let coordinateArray = [[0, 2], [1, 0], [2, 1]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+    } else if (x >= 1 && x <= 6 && y === 5) {//8 l,tl,t,tr,r
+
+        poss.push(ChessBoard.calcPos(x - 1, y));
+        poss.push(ChessBoard.calcPos(x - 1, y - 1));
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y - 1));
+        poss.push(ChessBoard.calcPos(x + 1, y));
+
+        let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
+
+        moveUsingCoordinateArray(poss, coordinateArray);
+
+    } else if (x === 7 && y === 5) {//9 l,tl,t
+
+        poss.push(ChessBoard.calcPos(x - 1, y));
+        poss.push(ChessBoard.calcPos(x - 1, y - 1));
+        poss.push(ChessBoard.calcPos(x, y - 1));
+        let coordinateArray = [[0, 1], [1, 2], [2, 0]];
+        moveUsingCoordinateArray(poss, coordinateArray);
+
     }
 
 }
 
+
+function getFigureAndRubikField(poss, i) {
+    return {
+        figure: chessBoard.chessFields[poss[i]].figure,
+        rubikField: chessBoard.chessFields[poss[i]].rubikField
+    };
+}
+
+function setFigureAndRubikField(poss, i, {figure, rubikField}) {
+    chessBoard.chessFields[poss[i]].figure = figure;
+    chessBoard.chessFields[poss[i]].rubikField = rubikField;
+}
 
 function moveUp(x) {
     let poss = [];
     for (let y = 2; y < 6; y++) {
         let pos = ChessBoard.calcPos(x, y);
         poss.push(pos);
-//        console.log(`pos ${pos}`);
-
     }
+    let coordinateArray = [[0, 3], [1, 0], [2, 1], [3, 2]];
 
-    let fig4 = chessBoard.chessFields[poss[3]].figure;
-    let fig3 = chessBoard.chessFields[poss[2]].figure;
-    let fig2 = chessBoard.chessFields[poss[1]].figure;
-    let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-    let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-    let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-    let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig4;
-    chessBoard.chessFields[poss[3]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rubikField = rub2;
-    chessBoard.chessFields[poss[1]].rubikField = rub3;
-    chessBoard.chessFields[poss[2]].rubikField = rub4;
-    chessBoard.chessFields[poss[3]].rubikField = rub1;
-
+    moveUsingCoordinateArray(poss, coordinateArray);
 }
+
 
 function moveDown(x) {
     let poss = [];
     for (let y = 2; y < 6; y++) {
         let pos = ChessBoard.calcPos(x, y);
         poss.push(pos);
-        console.log(`pos ${pos}`);
-
     }
+    let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 0]];
 
-    let fig4 = chessBoard.chessFields[poss[3]].figure;
-    let fig3 = chessBoard.chessFields[poss[2]].figure;
-    let fig2 = chessBoard.chessFields[poss[1]].figure;
-    let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-    let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-    let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-    let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-    chessBoard.chessFields[poss[0]].figure = fig4;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-    chessBoard.chessFields[poss[3]].figure = fig3;
-
-    chessBoard.chessFields[poss[0]].rubikField = rub4;
-    chessBoard.chessFields[poss[1]].rubikField = rub1;
-    chessBoard.chessFields[poss[2]].rubikField = rub2;
-    chessBoard.chessFields[poss[3]].rubikField = rub3;
+    moveUsingCoordinateArray(poss, coordinateArray);
 
 }
+
+function moveUsingCoordinateArray(poss, coordinateArray) {
+    let local_figures = []
+    let rubikFields = []
+    for (let i = 0; i < coordinateArray.length; i++) {
+        let [fromIndex, toIndex] = coordinateArray[i];
+        let {figure, rubikField} = getFigureAndRubikField(poss, fromIndex);
+        local_figures.push(figure)
+        rubikFields.push(rubikField)
+    }
+    for (let i = 0; i < coordinateArray.length; i++) {
+        let [fromIndex, toIndex] = coordinateArray[i];
+        let figure = local_figures[i];
+        let rubikField = rubikFields[i];
+        setFigureAndRubikField(poss, toIndex, {figure, rubikField});
+    }
+}
+
 
 function moveRight(y) {
 
@@ -1763,42 +1493,8 @@ function moveRight(y) {
         console.log(`pos ${pos}`);
 
     }
-
-    let fig8 = chessBoard.chessFields[poss[7]].figure;
-    let fig7 = chessBoard.chessFields[poss[6]].figure;
-    let fig6 = chessBoard.chessFields[poss[5]].figure;
-    let fig5 = chessBoard.chessFields[poss[4]].figure;
-    let fig4 = chessBoard.chessFields[poss[3]].figure;
-    let fig3 = chessBoard.chessFields[poss[2]].figure;
-    let fig2 = chessBoard.chessFields[poss[1]].figure;
-    let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    let rub8 = chessBoard.chessFields[poss[7]].rubikField;
-    let rub7 = chessBoard.chessFields[poss[6]].rubikField;
-    let rub6 = chessBoard.chessFields[poss[5]].rubikField;
-    let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-    let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-    let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-    let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-    let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-    chessBoard.chessFields[poss[0]].figure = fig8;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-    chessBoard.chessFields[poss[3]].figure = fig3;
-    chessBoard.chessFields[poss[4]].figure = fig4;
-    chessBoard.chessFields[poss[5]].figure = fig5;
-    chessBoard.chessFields[poss[6]].figure = fig6;
-    chessBoard.chessFields[poss[7]].figure = fig7;
-
-    chessBoard.chessFields[poss[0]].rubikField = rub8;
-    chessBoard.chessFields[poss[1]].rubikField = rub1;
-    chessBoard.chessFields[poss[2]].rubikField = rub2;
-    chessBoard.chessFields[poss[3]].rubikField = rub3;
-    chessBoard.chessFields[poss[4]].rubikField = rub4;
-    chessBoard.chessFields[poss[5]].rubikField = rub5;
-    chessBoard.chessFields[poss[6]].rubikField = rub6;
-    chessBoard.chessFields[poss[7]].rubikField = rub7;
+    let coordinateArray = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 0]];
+    moveUsingCoordinateArray(poss, coordinateArray);
 
 }
 
@@ -1811,42 +1507,9 @@ function moveLeft(y) {
         console.log(`pos ${pos}`);
 
     }
+    let coordinateArray = [[0, 7], [1, 0], [2, 1], [3, 2], [4, 3], [5, 4], [6, 5], [7, 6]];
 
-    let fig8 = chessBoard.chessFields[poss[7]].figure;
-    let fig7 = chessBoard.chessFields[poss[6]].figure;
-    let fig6 = chessBoard.chessFields[poss[5]].figure;
-    let fig5 = chessBoard.chessFields[poss[4]].figure;
-    let fig4 = chessBoard.chessFields[poss[3]].figure;
-    let fig3 = chessBoard.chessFields[poss[2]].figure;
-    let fig2 = chessBoard.chessFields[poss[1]].figure;
-    let fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    let rub8 = chessBoard.chessFields[poss[7]].rubikField;
-    let rub7 = chessBoard.chessFields[poss[6]].rubikField;
-    let rub6 = chessBoard.chessFields[poss[5]].rubikField;
-    let rub5 = chessBoard.chessFields[poss[4]].rubikField;
-    let rub4 = chessBoard.chessFields[poss[3]].rubikField;
-    let rub3 = chessBoard.chessFields[poss[2]].rubikField;
-    let rub2 = chessBoard.chessFields[poss[1]].rubikField;
-    let rub1 = chessBoard.chessFields[poss[0]].rubikField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig4;
-    chessBoard.chessFields[poss[3]].figure = fig5;
-    chessBoard.chessFields[poss[4]].figure = fig6;
-    chessBoard.chessFields[poss[5]].figure = fig7;
-    chessBoard.chessFields[poss[6]].figure = fig8;
-    chessBoard.chessFields[poss[7]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rubikField = rub2;
-    chessBoard.chessFields[poss[1]].rubikField = rub3;
-    chessBoard.chessFields[poss[2]].rubikField = rub4;
-    chessBoard.chessFields[poss[3]].rubikField = rub5;
-    chessBoard.chessFields[poss[4]].rubikField = rub6;
-    chessBoard.chessFields[poss[5]].rubikField = rub7;
-    chessBoard.chessFields[poss[6]].rubikField = rub8;
-    chessBoard.chessFields[poss[7]].rubikField = rub1;
+    moveUsingCoordinateArray(poss, coordinateArray);
 
 }
 
@@ -1871,38 +1534,40 @@ let chess_ai = {
             return bestMove;
 
         },
+
         calculateBestMove: function (calcBoard) {
             let bestMove = {};
             //use any negative large number
             let bestValue = 9999;
-            let calcBoardCopy = deepCopy(calcBoard);
+            //let calcBoardCopy = deepCopy(calcBoard);
+            let calcBoardCopy = calcBoard.copy();
             // let calcBoardCopy = {...calcBoard};
             for (let x = 0; x < 8; x++) {
                 for (let y = 0; y < 8; y++) {
                     let pos = ChessBoard.calcPos(x, y);
                     let figure = calcBoardCopy.chessFields[pos].figure;
-                    if (figure !== undefined && figure.color === "black" && figure.calculated === false) {
-                        let moves = figure.getPossibleMoves(x, y,chessBoard);
-                        // for (let j = 0; j < moves.length; j++) {
-                        for (let j = 1; j >= 0; j--) {
+                    if (figure !== undefined && figure !== null && figure.color === "black" && figure.calculated === false) {
+                        let moves = figure.getPossibleMoves(x, y, calcBoardCopy);
+                        for (let j = 0; j < moves.length; j++) {
                             let moveList = moves[j];
                             for (let i = 0; i < moveList.length; i++) {
                                 let field = moveList[i];
-                                calcBoardCopy = deepCopy();
-                                let currentChessField = chessBoard.getChessField(calcBoardCopy, ChessBoard.calcPos(x, y));
-                                // debugger;
+                                if (field.figure !== undefined && field.figure !== null) {
+                                    //calcBoardCopy = deepCopy();
+                                    calcBoardCopy = calcBoardCopy.copy();
+                                    let currentChessField = calcBoardCopy.getChessField(ChessBoard.calcPos(x, y));
+                                    figure.calculated = true;
+                                    calcBoardCopy.chessFields[ChessBoard.calcPos(field.x, field.y)].figure = figure;
+                                    calcBoardCopy.chessFields[ChessBoard.calcPos(currentChessField.x, currentChessField.y)].figure = undefined;
 
-                                figure.calculated = true;
-                                calcBoardCopy.chessFields[ChessBoard.calcPos(field.x, field.y)].figure = figure;
-                                calcBoardCopy.chessFields[ChessBoard.calcPos(currentChessField.x, currentChessField.y)].figure = undefined;
-
-                                let boardValue = calcBoardCopy.evaluateBoard();
-                                calcBoardCopy = deepCopy();
-                                if (boardValue < bestValue) {
-                                    bestValue = boardValue;
-                                    bestMove[`${x}_${y}`] = field;
-                                    bestMove['x'] = x;
-                                    bestMove['y'] = y;
+                                    let boardValue = calcBoardCopy.evaluateBoard();
+                                    calcBoardCopy = calcBoardCopy.copy();
+                                    if (boardValue < bestValue) {
+                                        bestValue = boardValue;
+                                        bestMove[`${x}_${y}`] = field;
+                                        bestMove['x'] = x;
+                                        bestMove['y'] = y;
+                                    }
                                 }
                             }
                         }
@@ -1917,20 +1582,22 @@ let chess_ai = {
             let bestMove = {};
             //use any negative large number
             let bestValue = 9999;
-            let calcBoardCopy = deepCopy();
+            //let calcBoardCopy = deepCopy(calcBoard);
+            let calcBoardCopy = calcBoard.copy();
             for (let x = 0; x < 8; x++) {
                 for (let y = 0; y < 8; y++) {
                     let pos = ChessBoard.calcPos(x, y);
                     let figure = calcBoardCopy.chessFields[pos].figure;
 
-                    if (figure !== undefined && figure.color === "black" && figure.calculated === false) {
-                        let moves = figure.getPossibleMoves(x, y,chessBoard);
+                    if (figure !== undefined && figure !== null && figure.color === "black" && figure.calculated === false) {
+                        let moves = figure.getPossibleMoves(x, y, chessBoard);
                         // for (let j = 0; j < moves.length; j++) {
                         for (let j = 1; j >= 0; j--) {
                             let moveList = moves[j];
                             for (let i = 0; i < moveList.length; i++) {
                                 let field = moveList[i];
-                                calcBoardCopy = deepCopy();
+                                 calcBoardCopy = calcBoard.copy();
+
                                 let currentChessField = calcBoardCopy.getChessField(ChessBoard.calcPos(x, y));
                                 // debugger;
 
@@ -1939,7 +1606,8 @@ let chess_ai = {
                                 calcBoardCopy.chessFields[ChessBoard.calcPos(currentChessField.x, currentChessField.y)].figure = undefined;
 
                                 let boardValue = calcBoardCopy.evaluateBoard();
-                                calcBoardCopy = deepCopy();
+                                 calcBoardCopy = calcBoard.copy();
+
                                 if (boardValue < bestValue) {
                                     bestValue = boardValue;
                                     bestMove[`${x}_${y}`] = field;
@@ -1954,10 +1622,11 @@ let chess_ai = {
 
                 }
             }
-            console.log(`bestMove ${bestMove.toString()}`);
+            console.log(`bestMove ${JSON.stringify(bestMove)}`);
 
             return bestMove;
-        },
+        }
+        ,
 
         minimax: function (depth, calcBoardCopy, alpha, beta, isMaximisingPlayer) {
             chess_ai.positionCount++;
@@ -1993,7 +1662,8 @@ let chess_ai = {
                 }
                 return bestMove;
             }
-        },
+        }
+        ,
 
 
     }
