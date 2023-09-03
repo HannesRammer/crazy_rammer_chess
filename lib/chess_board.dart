@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
-import 'rammer_field.dart';
+import 'package:rammer_chess/models/rammer_field.dart';
+import 'package:rammer_chess/widgets/rammer_field_widget.dart';
 import 'main.dart';
 
 // ignore: must_be_immutable
@@ -120,9 +121,7 @@ class _BoardState extends State<Board> {
         for (int x = 0; x < 8; x++) {
           //column
           String special = "";
-          RammerField? rammerField = RammerField(
-            key: UniqueKey(),
-          );
+          RammerField? rammerField = RammerField();
 
           if (y == 0 || y == 1) {
             special = "none";
@@ -145,9 +144,19 @@ class _BoardState extends State<Board> {
           Figure? figure = Figure(key: UniqueKey(), x: x, y: y);
 
           if (Board.calcPos(x, y) < 16) {
-            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
+            figure = Figure(
+                key: UniqueKey(),
+                type: topFigures.removeAt(0),
+                color: Colors.black,
+                x: x,
+                y: y);
           } else if (Board.calcPos(x, y) >= 48) {
-            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
+            figure = Figure(
+                key: UniqueKey(),
+                type: bottomFigures.removeAt(0),
+                color: Colors.white,
+                x: x,
+                y: y);
           } else {
             figure = null;
           }
@@ -194,7 +203,6 @@ class _BoardState extends State<Board> {
 
   @override
   void initState() {
-
     initBoard();
 
     super.initState();
@@ -202,14 +210,13 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('chess_board.dart'),
       ),
       body:
-      // widget.chessFields.toList().first,
-      GridView.count(
+          // widget.chessFields.toList().first,
+          GridView.count(
         crossAxisCount: 8,
         childAspectRatio: 1.0,
         padding: const EdgeInsets.all(4.0),
