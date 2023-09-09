@@ -4,20 +4,12 @@ import 'package:flutter/material.dart';
 import 'chess_field.dart';
 import 'chess_board.dart';
 import 'chess_figure.dart';
-import 'package:rammer_chess/models/rammer_field.dart';
-import 'package:rammer_chess/widgets/rammer_field_widget.dart';
+import 'rammer_field.dart';
 
 Map chessBoardMap = {};
 List chessBoardList = [];
 
-List rammerDirections = [
-  "up",
-  "right",
-  "down",
-  "left",
-  "clockwise",
-  "anticlockwise"
-];
+List rammerDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
 Map rammerColors = {
   "up": Colors.red[400],
   "right": Colors.green,
@@ -29,104 +21,18 @@ Map rammerColors = {
 
 int rammerDirectionsCounter = 0;
 List board = [
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ],
-  [
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black
-  ],
-  [
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white,
-    Colors.black,
-    Colors.white
-  ]
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
+  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
+  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white]
 ];
 
-Map whiteFiguresCode = {
-  "king": "&#x2654;",
-  "queen": "&#x2655;",
-  "rook": "&#x2656;",
-  "bishop": "&#x2657;",
-  "knight": "&#x2658;",
-  "pawn": "&#x2659;"
-};
-Map blackFiguresCode = {
-  "king": "&#x265A;",
-  "queen": "&#x265B;",
-  "rook": "&#x265C;",
-  "bishop": "&#x265D;",
-  "knight": "&#x265E;",
-  "pawn": "&#x265F;"
-};
+Map whiteFiguresCode = {"king": "&#x2654;", "queen": "&#x2655;", "rook": "&#x2656;", "bishop": "&#x2657;", "knight": "&#x2658;", "pawn": "&#x2659;"};
+Map blackFiguresCode = {"king": "&#x265A;", "queen": "&#x265B;", "rook": "&#x265C;", "bishop": "&#x265D;", "knight": "&#x265E;", "pawn": "&#x265F;"};
 
 List topFigures = [
   "rook",
@@ -165,7 +71,7 @@ List bottomFigures = [
   "knight",
   "rook"
 ];
-Board chessBoard = Board(chessFields: [], key: UniqueKey());
+Board chessBoard = Board(chessFields: [],key: UniqueKey());
 
 /*
  Board(chessFields: [
@@ -224,28 +130,27 @@ void main() {
   );
 }
 
-void makeMove(
-    ChessField fromChessField, ChessField toChessField, String playerType) {
+
+void makeMove(ChessField fromChessField, ChessField toChessField, String playerType) {
   var figureCopy = fromChessField.figure;
-  if (figureCopy != null) {
-    figureCopy.hasMoved = true;
-  }
+  figureCopy.hasMoved = true;
   toChessField.figure = figureCopy;
   fromChessField.figure = null;
 
   if (chessBoard.colorToMove == "white") {
-    chessBoard.colorToMove = Colors.black;
+    chessBoard.colorToMove = "black";
   } else {
-    chessBoard.colorToMove = Colors.white;
+    chessBoard.colorToMove = "white";
   }
 
   chessBoard.removeMoves();
+  toChessField.rubikField.click();
 
   var x = toChessField.x;
   var y = toChessField.y;
- 
+  update();
 
-  switch (toChessField.rammerField?.special) {
+  switch (toChessField.rubikField.special) {
     case "up":
       moveUp(x);
       break;
@@ -273,6 +178,7 @@ void makeMove(
   updateBoard();
 }
 
+
 void addMove(ChessField chessField, Color marker) {
   chessField.marker = marker;
 }
@@ -285,6 +191,7 @@ updateBoard() {
   // int toChessFieldDiv = document.createElement("div");
   // toChessFieldDiv.setAttribute("type", "hidden");
   // toChessFieldDiv.id = "toChessFieldDiv";
+
 
   // chessBoard.chessFields.forEach( (chessField, i) {
   //   int chessFieldDiv = createChessFieldDiv(chessField);
@@ -301,11 +208,13 @@ updateBoard() {
   //   // print('%d: %s', i, chessField.toString());
   // });
 
+
   // document.body.appendChild(chessBoardDiv);
 }
 
+/*
 aiMove() {
-/*  Map bestMove = chess_ai.calculateBestMove(chessBoard);
+  Map bestMove = chess_ai.calculateBestMove(chessBoard);
   int currentX = bestMove["x"];
   int currentY = bestMove["y"];
   List currentPos = Board.calcPos(bestMove["x"], bestMove["y"]);
@@ -316,9 +225,9 @@ aiMove() {
   int toPos = Board.calcPos(toField["x"], toField["y"]);
   // debugger;
   makeMove(chessBoard.getChessField(currentPos),
-      chessBoard.getChessField(toPos), "ai");*/
+      chessBoard.getChessField(toPos), "ai");
 }
-
+*/
 moveClockwise(x, y) {
   List poss = [];
   if (x == 0 && y == 2) {
@@ -849,6 +758,7 @@ moveUp(x) {
     int pos = Board.calcPos(x, y);
     poss.add(pos);
 //        print("pos ${pos}");
+
   }
 
   Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
