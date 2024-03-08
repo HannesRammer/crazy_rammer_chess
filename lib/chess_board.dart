@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
 import 'rammer_field.dart';
+import 'move_functions.dart';
 import 'main.dart';
 
 // ignore: must_be_immutable
@@ -15,6 +16,8 @@ class Board extends StatefulWidget {
   Color? colorToMove = Colors.white;
   int? fromChessFieldPosition;
   int? toChessFieldPosition;
+
+
 
   //###THIS IS FOR CHESS AI
   // Map getPossibleMoves() {
@@ -33,12 +36,80 @@ class Board extends StatefulWidget {
   //   //return possibleMoves;
   //   return pMap;
   // }
-
-  void removeMoves() {
-    for (ChessField chessField in chessFields) {
-      chessField.marker = null;
+  void _resetMarkers() {
+    for (ChessField field in chessBoard.chessFields) {
+      field.marker = null; // Or whatever your default color is
     }
   }
+
+  void makeMove(
+      ChessField fromChessField, ChessField toChessField, String playerType) {
+    var figureCopy = fromChessField.figure;
+    figureCopy?.hasMoved = true;
+    toChessField.figure = figureCopy;
+    fromChessField.figure = null;
+
+    if (chessBoard.colorToMove == Colors.white) {
+      chessBoard.colorToMove = Colors.black;
+    } else {
+      chessBoard.colorToMove = Colors.white;
+    }
+
+    _resetMarkers(); // Reset the markers before updating them
+
+    var x = toChessField.x;
+    var y = toChessField.y;
+
+    switch (toChessField.rammerField?.special) {
+      case "up":
+        moveUp(x);
+        break;
+      case "right":
+        moveRight(y);
+        break;
+      case "down":
+        moveDown(x);
+        break;
+      case "left":
+        moveLeft(y);
+        break;
+      case "clockwise":
+        moveClockwise(x, y);
+        break;
+      case "anticlockwise":
+        moveAntiClockwise(x, y);
+        break;
+    }
+
+    if (playerType == "human") {
+      //aiMove();
+    }
+
+    updateBoard();
+  }
+
+
+  updateBoard() {}
+
+/*
+aiMove() {
+  Map bestMove = chess_ai.calculateBestMove(chessBoard);
+  int currentX = bestMove["x"];
+  int currentY = bestMove["y"];
+  List currentPos = Board.calcPos(bestMove["x"], bestMove["y"]);
+
+  Map toField = bestMove["${currentX}_${currentY}"];
+  int toX = toField["x"];
+  int toY = toField["y"];
+  int toPos = Board.calcPos(toField["x"], toField["y"]);
+  // debugger;
+  makeMove(chessBoard.getChessField(currentPos),
+      chessBoard.getChessField(toPos), "ai");
+}
+*/
+
+
+
 
   ChessField getChessField(pos) {
     return chessFields[pos];
@@ -80,20 +151,43 @@ class Board extends StatefulWidget {
 class _BoardState extends State<Board> {
   bool _changed = false;
 
-  // void _handleMarkerSelected(bool newValue) {
-  //   setState(() {
-  //    // _changed = newValue;
-  //   });
-  // }
+  Color color = Colors.white; // Define color
+  int x = 0; // Define x
+  int y = 0; // Define y
 
-  //void _handleChessFigureTapped(List<ChessField> newValue) {
-  void _handleChessFigureTapped(bool newValue) {
-    _changed = newValue;
-    //widget.colorToMove =
-    print("figure selected");
-    setState(() {});
+  void addMove(ChessField chessField, Color marker) {
+    chessField.marker = marker;
   }
 
+  void _handleFigureTap(Figure figure) {
+    print('ChessFigure was tapped!');
+    chessBoard._resetMarkers(); // Reset the markers before updating them
+    if (figure?.color == chessBoard.colorToMove) {
+      print('Figure color matches the color to move');
+      chessBoard.fromChessFieldPosition = Board.calcPos(figure.x, figure.y);
+
+      if (figure != null) {
+        List moveList = figure.getPossibleMoves(figure.x, figure.y, chessBoard);
+        if (moveList.isNotEmpty) {
+          print('Possible moves are available');
+          setState(() { // Add this line
+            for (ChessField element in moveList[0]) {
+              print('Adding green marker to ${element.chessPosition}');
+              addMove(element, Colors.green);
+            }
+            for (ChessField element in moveList[1]) {
+              print('Adding red marker to ${element.chessPosition}');
+              addMove(element, Colors.red);
+            }
+          }); // Add this line
+        } else {
+          print('No possible moves available');
+        }
+      }
+    } else {
+      print('Figure color does not match the color to move');
+    }
+  }
   void initBoard() {
     if (topFigures.isNotEmpty && bottomFigures.isNotEmpty) {
       for (int y = 0; y < 8; y++) {
@@ -142,12 +236,12 @@ class _BoardState extends State<Board> {
               rammerDirectionsCounter++;
             }
           }
-          Figure? figure = Figure(key: UniqueKey(), x: x, y: y);
+          Figure? figure = Figure(key: UniqueKey(), x: x, y: y, onTap:_handleFigureTap,);
 
           if (Board.calcPos(x, y) < 16) {
-            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, x: x, y: y);
+            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, x: x, y: y, onTap:_handleFigureTap ,);
           } else if (Board.calcPos(x, y) >= 48) {
-            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y);
+            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y, onTap:_handleFigureTap );
           } else {
             figure = null;
           }
@@ -161,7 +255,6 @@ class _BoardState extends State<Board> {
             rammerField: rammerField,
             marker: null,
             // onMarkerSelected: _handleMarkerSelected,
-            onFigureSelected: _handleChessFigureTapped,
             changed: !_changed,
             key: UniqueKey(),
           );
@@ -176,6 +269,8 @@ class _BoardState extends State<Board> {
     }
   }
 
+
+//       },
   // void _handleBoardChanged(ChessField chessField, bool onBoard) {
   //   setState(() {
   //     // When a user changes what's in the board, you need
@@ -202,22 +297,27 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('chess_board.dart'),
+        title: Text(widget.name),
       ),
-      body:
-      // widget.chessFields.toList().first,
-      GridView.count(
+      body: GridView.count(
         crossAxisCount: 8,
-        childAspectRatio: 1.0,
-        padding: const EdgeInsets.all(4.0),
-        mainAxisSpacing: 4.0,
-        crossAxisSpacing: 4.0,
-        // children: [widget.chessFields.toList().first],
-        //children: widget.chessFields.toList(),
-        children: widget.chessFields.toList(),
+        children: List.generate(widget.chessFields.length, (index) {
+          ChessField chessField = widget.chessFields[index];
+          return ChessField(
+            x: chessField.x,
+            y: chessField.y,
+            xyPosition: chessField.xyPosition,
+            chessPosition: chessField.chessPosition,
+            color: chessField.color,
+            rammerField: chessField.rammerField,
+            changed: chessField.changed,
+            figure: chessField.figure,
+            marker: chessField.marker
+
+          );
+        }),
       ),
     );
   }

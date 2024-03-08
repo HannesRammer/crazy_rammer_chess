@@ -9,7 +9,14 @@ import 'rammer_field.dart';
 Map chessBoardMap = {};
 List chessBoardList = [];
 
-List rammerDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
+List rammerDirections = [
+  "up",
+  "right",
+  "down",
+  "left",
+  "clockwise",
+  "anticlockwise"
+];
 Map rammerColors = {
   "up": Colors.red[400],
   "right": Colors.green,
@@ -21,18 +28,104 @@ Map rammerColors = {
 
 int rammerDirectionsCounter = 0;
 List board = [
-  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
-  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
-  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
-  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
-  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
-  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white],
-  [Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black],
-  [Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white, Colors.black, Colors.white]
+  [
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+  ],
+  [
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white
+  ],
+  [
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black
+  ],
+  [
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white
+  ],
+  [
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black
+  ],
+  [
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white
+  ],
+  [
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black
+  ],
+  [
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white,
+    Colors.black,
+    Colors.white
+  ]
 ];
 
-Map whiteFiguresCode = {"king": "&#x2654;", "queen": "&#x2655;", "rook": "&#x2656;", "bishop": "&#x2657;", "knight": "&#x2658;", "pawn": "&#x2659;"};
-Map blackFiguresCode = {"king": "&#x265A;", "queen": "&#x265B;", "rook": "&#x265C;", "bishop": "&#x265D;", "knight": "&#x265E;", "pawn": "&#x265F;"};
+Map whiteFiguresCode = {
+  "king": "&#x2654;",
+  "queen": "&#x2655;",
+  "rook": "&#x2656;",
+  "bishop": "&#x2657;",
+  "knight": "&#x2658;",
+  "pawn": "&#x2659;"
+};
+Map blackFiguresCode = {
+  "king": "&#x265A;",
+  "queen": "&#x265B;",
+  "rook": "&#x265C;",
+  "bishop": "&#x265D;",
+  "knight": "&#x265E;",
+  "pawn": "&#x265F;"
+};
 
 List topFigures = [
   "rook",
@@ -71,834 +164,12 @@ List bottomFigures = [
   "knight",
   "rook"
 ];
-Board chessBoard = Board(chessFields: [],key: UniqueKey());
-
-/*
- Board(chessFields: [
-          ChessField(
-            x: 1,
-            y: 1,
-            xyPosition: ["1_1"],
-            chessPosition: "e3",
-            color: Colors.black,
-            rammerField: RammerField(
-                color: Colors.red,
-                special: "",
-                x: 1,
-                y: 1),
-            figure: Figure(color: Colors.white, type: "KING"),
-            marker: "marker",
-            onBoard: true,
-//      onBoardChanged:
-          ),
-          ChessField(
-            x: 1,
-            y: 1,
-            xyPosition: ["1_1"],
-            chessPosition: "b2",
-            color: Colors.white,
-            rammerField: RammerField(
-                color: Colors.green,
-                special: "",
-                x: 1,
-                y: 1),
-            figure: Figure(color: Colors.black, type: "king"),
-            marker: "marker",
-            onBoard: true,
-//      onBoardChanged:
-          ),
-          ChessField(
-            x: 1,
-            y: 1,
-            xyPosition: ["1_1"],
-            chessPosition: "a2",
-            color: Colors.black,
-            rammerField:
-                RammerField(color: Colors.blue, special: "", x: 1, y: 1),
-
-            figure: Figure(color: Colors.white, type: "QUEEN"),
-            marker: "marker",
-            onBoard: true,
-//      onBoardChanged:
-          )
-        ])
-* */
+Board chessBoard = Board(chessFields: [], key: UniqueKey());
 
 void main() {
   runApp(
     MaterialApp(title: 'Rammer Chess', home: chessBoard),
   );
-}
-
-
-void makeMove(ChessField fromChessField, ChessField toChessField, String playerType) {
-  var figureCopy = fromChessField.figure;
-  figureCopy.hasMoved = true;
-  toChessField.figure = figureCopy;
-  fromChessField.figure = null;
-
-  if (chessBoard.colorToMove == "white") {
-    chessBoard.colorToMove = "black";
-  } else {
-    chessBoard.colorToMove = "white";
-  }
-
-  chessBoard.removeMoves();
-  toChessField.rubikField.click();
-
-  var x = toChessField.x;
-  var y = toChessField.y;
-  update();
-
-  switch (toChessField.rubikField.special) {
-    case "up":
-      moveUp(x);
-      break;
-    case "right":
-      moveRight(y);
-      break;
-    case "down":
-      moveDown(x);
-      break;
-    case "left":
-      moveLeft(y);
-      break;
-    case "clockwise":
-      moveClockwise(x, y);
-      break;
-    case "anticlockwise":
-      moveAntiClockwise(x, y);
-      break;
-  }
-
-  if (playerType == "human") {
-    aiMove();
-  }
-
-  updateBoard();
-}
-
-
-void addMove(ChessField chessField, Color marker) {
-  chessField.marker = marker;
-}
-
-updateBoard() {
-  // int fromChessFieldDiv = document.createElement("input");
-
-  // fromChessFieldDiv.id = "fromChessFieldDiv";
-  // fromChessFieldDiv.setAttribute("type", "hidden");
-  // int toChessFieldDiv = document.createElement("div");
-  // toChessFieldDiv.setAttribute("type", "hidden");
-  // toChessFieldDiv.id = "toChessFieldDiv";
-
-
-  // chessBoard.chessFields.forEach( (chessField, i) {
-  //   int chessFieldDiv = createChessFieldDiv(chessField);
-  //   RammerField rammerFieldDiv = createRammerFieldDiv(chessField.rammerField, chessField.x, chessField.y);
-  //   int figureDiv;
-  //
-  //   chessFieldDiv.appendChild(rammerFieldDiv);
-  //   if (chessField.figure == null) {
-  //     figureDiv = createFigureDiv(chessField.figure, chessField.x, chessField.y);
-  //     chessFieldDiv.appendChild(figureDiv);
-  //   }
-  //
-  //   chessBoardDiv.appendChild(chessFieldDiv);
-  //   // print('%d: %s', i, chessField.toString());
-  // });
-
-
-  // document.body.appendChild(chessBoardDiv);
-}
-
-/*
-aiMove() {
-  Map bestMove = chess_ai.calculateBestMove(chessBoard);
-  int currentX = bestMove["x"];
-  int currentY = bestMove["y"];
-  List currentPos = Board.calcPos(bestMove["x"], bestMove["y"]);
-
-  Map toField = bestMove["${currentX}_${currentY}"];
-  int toX = toField["x"];
-  int toY = toField["y"];
-  int toPos = Board.calcPos(toField["x"], toField["y"]);
-  // debugger;
-  makeMove(chessBoard.getChessField(currentPos),
-      chessBoard.getChessField(toPos), "ai");
-}
-*/
-moveClockwise(x, y) {
-  List poss = [];
-  if (x == 0 && y == 2) {
-    //1
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-  } else if (x >= 1 && x <= 6 && y == 2) {
-    //2
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig4;
-    chessBoard.chessFields[poss[3]].figure = fig5;
-    chessBoard.chessFields[poss[4]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub4;
-    chessBoard.chessFields[poss[3]].rammerField = rub5;
-    chessBoard.chessFields[poss[4]].rammerField = rub2;
-  } else if (x == 7 && y == 2) {
-    //3
-
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-  } else if ((x == 0 && y == 3) || (x == 0 && y == 4)) {
-    //4
-
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig4;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-    chessBoard.chessFields[poss[3]].figure = fig5;
-    chessBoard.chessFields[poss[4]].figure = fig3;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub4;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-    chessBoard.chessFields[poss[3]].rammerField = rub5;
-    chessBoard.chessFields[poss[4]].rammerField = rub3;
-  } else if ((x >= 1 && x <= 6 && y == 3) || (x >= 1 && x <= 6 && y == 4)) {
-    //5
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig8 = chessBoard.chessFields[poss[7]].figure;
-    Figure? fig7 = chessBoard.chessFields[poss[6]].figure;
-    Figure? fig6 = chessBoard.chessFields[poss[5]].figure;
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub8 = chessBoard.chessFields[poss[7]].rammerField;
-    RammerField? rub7 = chessBoard.chessFields[poss[6]].rammerField;
-    RammerField? rub6 = chessBoard.chessFields[poss[5]].rammerField;
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig4;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-    chessBoard.chessFields[poss[3]].figure = fig6;
-    chessBoard.chessFields[poss[4]].figure = fig3;
-    chessBoard.chessFields[poss[5]].figure = fig7;
-    chessBoard.chessFields[poss[6]].figure = fig8;
-    chessBoard.chessFields[poss[7]].figure = fig5;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub4;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-    chessBoard.chessFields[poss[3]].rammerField = rub6;
-    chessBoard.chessFields[poss[4]].rammerField = rub3;
-    chessBoard.chessFields[poss[5]].rammerField = rub7;
-    chessBoard.chessFields[poss[6]].rammerField = rub8;
-    chessBoard.chessFields[poss[7]].rammerField = rub5;
-  } else if ((x == 7 && y == 3) || (x == 7 && y == 4)) {
-    //6
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig4;
-    chessBoard.chessFields[poss[3]].figure = fig5;
-    chessBoard.chessFields[poss[4]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub4;
-    chessBoard.chessFields[poss[3]].rammerField = rub5;
-    chessBoard.chessFields[poss[4]].rammerField = rub2;
-  } else if (x == 0 && y == 5) {
-    //7
-
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x + 1, y));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-  } else if (x >= 1 && x <= 6 && y == 5) {
-    //8
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig4;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-    chessBoard.chessFields[poss[3]].figure = fig5;
-    chessBoard.chessFields[poss[4]].figure = fig3;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub4;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-    chessBoard.chessFields[poss[3]].rammerField = rub5;
-    chessBoard.chessFields[poss[4]].rammerField = rub3;
-  } else if (x == 7 && y == 5) {
-    //9
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-  }
-}
-
-moveAntiClockwise(x, y) {
-  List poss = [];
-  if (x == 0 && y == 2) {
-    //1
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-  } else if (x >= 1 && x <= 6 && y == 2) {
-    //2
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig5;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-    chessBoard.chessFields[poss[3]].figure = fig3;
-    chessBoard.chessFields[poss[4]].figure = fig4;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub5;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-    chessBoard.chessFields[poss[3]].rammerField = rub3;
-    chessBoard.chessFields[poss[4]].rammerField = rub4;
-  } else if (x == 7 && y == 2) {
-    //3
-
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig3;
-    chessBoard.chessFields[poss[1]].figure = fig1;
-    chessBoard.chessFields[poss[2]].figure = fig2;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub3;
-    chessBoard.chessFields[poss[1]].rammerField = rub1;
-    chessBoard.chessFields[poss[2]].rammerField = rub2;
-  } else if ((x == 0 && y == 3) || (x == 0 && y == 4)) {
-    //4
-
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig5;
-    chessBoard.chessFields[poss[3]].figure = fig1;
-    chessBoard.chessFields[poss[4]].figure = fig4;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub5;
-    chessBoard.chessFields[poss[3]].rammerField = rub1;
-    chessBoard.chessFields[poss[4]].rammerField = rub4;
-  } else if ((x >= 1 && x <= 6 && y == 3) || (x >= 1 && x <= 6 && y == 4)) {
-    //5
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-    poss.add(Board.calcPos(x + 1, y + 1));
-
-    Figure? fig8 = chessBoard.chessFields[poss[7]].figure;
-    Figure? fig7 = chessBoard.chessFields[poss[6]].figure;
-    Figure? fig6 = chessBoard.chessFields[poss[5]].figure;
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub8 = chessBoard.chessFields[poss[7]].rammerField;
-    RammerField? rub7 = chessBoard.chessFields[poss[6]].rammerField;
-    RammerField? rub6 = chessBoard.chessFields[poss[5]].rammerField;
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig5;
-    chessBoard.chessFields[poss[3]].figure = fig1;
-    chessBoard.chessFields[poss[4]].figure = fig8;
-    chessBoard.chessFields[poss[5]].figure = fig4;
-    chessBoard.chessFields[poss[6]].figure = fig6;
-    chessBoard.chessFields[poss[7]].figure = fig7;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub5;
-    chessBoard.chessFields[poss[3]].rammerField = rub1;
-    chessBoard.chessFields[poss[4]].rammerField = rub8;
-    chessBoard.chessFields[poss[5]].rammerField = rub4;
-    chessBoard.chessFields[poss[6]].rammerField = rub6;
-    chessBoard.chessFields[poss[7]].rammerField = rub7;
-  } else if ((x == 7 && y == 3) || (x == 7 && y == 4)) {
-    //6
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x - 1, y + 1));
-    poss.add(Board.calcPos(x, y + 1));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig5;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-    chessBoard.chessFields[poss[3]].figure = fig3;
-    chessBoard.chessFields[poss[4]].figure = fig4;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub5;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-    chessBoard.chessFields[poss[3]].rammerField = rub3;
-    chessBoard.chessFields[poss[4]].rammerField = rub4;
-  } else if (x == 0 && y == 5) {
-    //7
-
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x + 1, y));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-  } else if (x >= 1 && x <= 6 && y == 5) {
-    //8
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x + 1, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    poss.add(Board.calcPos(x + 1, y));
-
-    Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-    Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-    RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig5;
-    chessBoard.chessFields[poss[3]].figure = fig1;
-    chessBoard.chessFields[poss[4]].figure = fig4;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub5;
-    chessBoard.chessFields[poss[3]].rammerField = rub1;
-    chessBoard.chessFields[poss[4]].rammerField = rub4;
-  } else if (x == 7 && y == 5) {
-    //9
-
-    poss.add(Board.calcPos(x - 1, y - 1));
-    poss.add(Board.calcPos(x, y - 1));
-    poss.add(Board.calcPos(x - 1, y));
-    Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-    Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-    Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-    RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-    RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-    RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-    chessBoard.chessFields[poss[0]].figure = fig2;
-    chessBoard.chessFields[poss[1]].figure = fig3;
-    chessBoard.chessFields[poss[2]].figure = fig1;
-
-    chessBoard.chessFields[poss[0]].rammerField = rub2;
-    chessBoard.chessFields[poss[1]].rammerField = rub3;
-    chessBoard.chessFields[poss[2]].rammerField = rub1;
-  }
-}
-
-moveUp(x) {
-  List poss = [];
-  for (int y = 2; y < 6; y++) {
-    int pos = Board.calcPos(x, y);
-    poss.add(pos);
-//        print("pos ${pos}");
-
-  }
-
-  Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-  Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-  Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-  Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-  RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-  RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-  RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-  RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-  chessBoard.chessFields[poss[0]].figure = fig2;
-  chessBoard.chessFields[poss[1]].figure = fig3;
-  chessBoard.chessFields[poss[2]].figure = fig4;
-  chessBoard.chessFields[poss[3]].figure = fig1;
-
-  chessBoard.chessFields[poss[0]].rammerField = rub2;
-  chessBoard.chessFields[poss[1]].rammerField = rub3;
-  chessBoard.chessFields[poss[2]].rammerField = rub4;
-  chessBoard.chessFields[poss[3]].rammerField = rub1;
-}
-
-moveDown(x) {
-  List poss = [];
-  for (int y = 2; y < 6; y++) {
-    int pos = Board.calcPos(x, y);
-    poss.add(pos);
-    print("pos $pos");
-  }
-
-  Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-  Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-  Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-  Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-  RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-  RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-  RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-  RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-  chessBoard.chessFields[poss[0]].figure = fig4;
-  chessBoard.chessFields[poss[1]].figure = fig1;
-  chessBoard.chessFields[poss[2]].figure = fig2;
-  chessBoard.chessFields[poss[3]].figure = fig3;
-
-  chessBoard.chessFields[poss[0]].rammerField = rub4;
-  chessBoard.chessFields[poss[1]].rammerField = rub1;
-  chessBoard.chessFields[poss[2]].rammerField = rub2;
-  chessBoard.chessFields[poss[3]].rammerField = rub3;
-}
-
-moveRight(y) {
-  List poss = [];
-  for (int x = 0; x < 8; x++) {
-    int pos = Board.calcPos(x, y);
-    poss.add(pos);
-    print("pos $pos");
-  }
-
-  Figure? fig8 = chessBoard.chessFields[poss[7]].figure;
-  Figure? fig7 = chessBoard.chessFields[poss[6]].figure;
-  Figure? fig6 = chessBoard.chessFields[poss[5]].figure;
-  Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-  Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-  Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-  Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-  Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-  RammerField? rub8 = chessBoard.chessFields[poss[7]].rammerField;
-  RammerField? rub7 = chessBoard.chessFields[poss[6]].rammerField;
-  RammerField? rub6 = chessBoard.chessFields[poss[5]].rammerField;
-  RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-  RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-  RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-  RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-  RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-  chessBoard.chessFields[poss[0]].figure = fig8;
-  chessBoard.chessFields[poss[1]].figure = fig1;
-  chessBoard.chessFields[poss[2]].figure = fig2;
-  chessBoard.chessFields[poss[3]].figure = fig3;
-  chessBoard.chessFields[poss[4]].figure = fig4;
-  chessBoard.chessFields[poss[5]].figure = fig5;
-  chessBoard.chessFields[poss[6]].figure = fig6;
-  chessBoard.chessFields[poss[7]].figure = fig7;
-
-  chessBoard.chessFields[poss[0]].rammerField = rub8;
-  chessBoard.chessFields[poss[1]].rammerField = rub1;
-  chessBoard.chessFields[poss[2]].rammerField = rub2;
-  chessBoard.chessFields[poss[3]].rammerField = rub3;
-  chessBoard.chessFields[poss[4]].rammerField = rub4;
-  chessBoard.chessFields[poss[5]].rammerField = rub5;
-  chessBoard.chessFields[poss[6]].rammerField = rub6;
-  chessBoard.chessFields[poss[7]].rammerField = rub7;
-}
-
-moveLeft(y) {
-  List poss = [];
-  for (int x = 0; x < 8; x++) {
-    int pos = Board.calcPos(x, y);
-    poss.add(pos);
-    print("pos $pos");
-  }
-
-  Figure? fig8 = chessBoard.chessFields[poss[7]].figure;
-  Figure? fig7 = chessBoard.chessFields[poss[6]].figure;
-  Figure? fig6 = chessBoard.chessFields[poss[5]].figure;
-  Figure? fig5 = chessBoard.chessFields[poss[4]].figure;
-  Figure? fig4 = chessBoard.chessFields[poss[3]].figure;
-  Figure? fig3 = chessBoard.chessFields[poss[2]].figure;
-  Figure? fig2 = chessBoard.chessFields[poss[1]].figure;
-  Figure? fig1 = chessBoard.chessFields[poss[0]].figure;
-
-  RammerField? rub8 = chessBoard.chessFields[poss[7]].rammerField;
-  RammerField? rub7 = chessBoard.chessFields[poss[6]].rammerField;
-  RammerField? rub6 = chessBoard.chessFields[poss[5]].rammerField;
-  RammerField? rub5 = chessBoard.chessFields[poss[4]].rammerField;
-  RammerField? rub4 = chessBoard.chessFields[poss[3]].rammerField;
-  RammerField? rub3 = chessBoard.chessFields[poss[2]].rammerField;
-  RammerField? rub2 = chessBoard.chessFields[poss[1]].rammerField;
-  RammerField? rub1 = chessBoard.chessFields[poss[0]].rammerField;
-
-  chessBoard.chessFields[poss[0]].figure = fig2;
-  chessBoard.chessFields[poss[1]].figure = fig3;
-  chessBoard.chessFields[poss[2]].figure = fig4;
-  chessBoard.chessFields[poss[3]].figure = fig5;
-  chessBoard.chessFields[poss[4]].figure = fig6;
-  chessBoard.chessFields[poss[5]].figure = fig7;
-  chessBoard.chessFields[poss[6]].figure = fig8;
-  chessBoard.chessFields[poss[7]].figure = fig1;
-
-  chessBoard.chessFields[poss[0]].rammerField = rub2;
-  chessBoard.chessFields[poss[1]].rammerField = rub3;
-  chessBoard.chessFields[poss[2]].rammerField = rub4;
-  chessBoard.chessFields[poss[3]].rammerField = rub5;
-  chessBoard.chessFields[poss[4]].rammerField = rub6;
-  chessBoard.chessFields[poss[5]].rammerField = rub7;
-  chessBoard.chessFields[poss[6]].rammerField = rub8;
-  chessBoard.chessFields[poss[7]].rammerField = rub1;
 }
 
 /*   calculateBestMoveOld:  (game) {

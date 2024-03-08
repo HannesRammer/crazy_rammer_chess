@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'chess_board.dart';
 
@@ -6,7 +5,14 @@ import 'chess_field.dart';
 
 // ignore: must_be_immutable
 class Figure extends StatelessWidget {
-  Figure({required Key key, this.type, this.color, required this.x, required this.y}) : super(key: key) {
+  Figure(
+      {required Key key,
+      this.type,
+      this.color,
+      required this.x,
+      required this.y,
+      required this.onTap})
+      : super(key: key) {
     int multi = 1;
     if (color == Colors.black) {
       multi = multi * -1;
@@ -26,6 +32,7 @@ class Figure extends StatelessWidget {
     }
   }
 
+  final void Function(Figure figure) onTap;
   final String? type;
   final Color? color;
   int value = 0;
@@ -53,7 +60,8 @@ class Figure extends StatelessWidget {
     return possibleMoves;
   }
 
-  static List<List<ChessField>> getRookMoves(Figure rook, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getRookMoves(
+      Figure rook, int x, int y, Board chessBoard) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
 
@@ -146,7 +154,8 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getBishopMoves(Figure bishop, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getBishopMoves(
+      Figure bishop, int x, int y, Board chessBoard) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
 
@@ -164,7 +173,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x + i, y + i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x + i, y + i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -190,7 +200,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x - i, y + i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x - i, y + i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -216,7 +227,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x - i, y - i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x - i, y - i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -242,7 +254,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x + i, y - i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x + i, y - i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -263,7 +276,8 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getQueenMoves(Figure queen, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getQueenMoves(
+      Figure queen, int x, int y, Board chessBoard) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
 
@@ -282,7 +296,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x + i, y + i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x + i, y + i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -308,7 +323,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x - i, y + i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x - i, y + i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -334,7 +350,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x - i, y - i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x - i, y - i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -360,7 +377,8 @@ class Figure extends StatelessWidget {
     }
 
     for (int i = 1; i <= distance; i++) {
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x + i, y - i));
+      ChessField chessField =
+          chessBoard.getChessField(Board.calcPos(x + i, y - i));
       Figure? chessFieldFigure = chessField.figure;
       bool isEmpty = false;
 
@@ -468,7 +486,8 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getKingMoves(Figure king, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getKingMoves(
+      Figure king, int x, int y, Board chessBoard) {
     // y = switchY(y);
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
@@ -485,8 +504,10 @@ class Figure extends StatelessWidget {
 // debugger;
 
     for (var position in kingMoves) {
-      if ((position[0] >= 0 && position[0] < 8) && (position[1] >= 0 && position[1] < 8)) {
-        ChessField chessField = chessBoard.getChessField(Board.calcPos(position[0], position[1]));
+      if ((position[0] >= 0 && position[0] < 8) &&
+          (position[1] >= 0 && position[1] < 8)) {
+        ChessField chessField =
+            chessBoard.getChessField(Board.calcPos(position[0], position[1]));
         Figure? chessFieldFigure = chessField.figure;
         bool isEmpty = false;
 
@@ -507,7 +528,8 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getKnightMoves(Figure knight, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getKnightMoves(
+      Figure knight, int x, int y, Board chessBoard) {
     // y = switchY(y);
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
@@ -523,8 +545,10 @@ class Figure extends StatelessWidget {
     ];
 
     for (List position in knightMoves) {
-      if ((position[0] >= 0 && position[0] < 8) && (position[1] >= 0 && position[1] < 8)) {
-        ChessField chessField = chessBoard.getChessField(Board.calcPos(position[0], position[1]));
+      if ((position[0] >= 0 && position[0] < 8) &&
+          (position[1] >= 0 && position[1] < 8)) {
+        ChessField chessField =
+            chessBoard.getChessField(Board.calcPos(position[0], position[1]));
         Figure? chessFieldFigure = chessField.figure;
         bool isEmpty = false;
 
@@ -545,7 +569,8 @@ class Figure extends StatelessWidget {
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getPawnMoves(Figure pawn, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getPawnMoves(
+      Figure pawn, int x, int y, Board chessBoard) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
 //move one field
@@ -627,35 +652,18 @@ class Figure extends StatelessWidget {
     return '''type:$type color:$color''';
   }
 
+  void handleTap() {
+    print('Figure was tapped!');
+    print('Figure type: $type');
+    print('Figure color: $color');
+    print('Figure x: $x');
+    print('Figure y: $y');
+    onTap(this);
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-       onTap: null,//() {
-//         print('ChessFigure was tapped!');
-//
-//         // document.querySelector("#fromChessFieldDiv").setAttribute("value", Board.calcPos(figure.x, figure.y));
-//         if (color == chessBoard.colorToMove) {
-//           chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
-//           // chessBoard.toChessField = "";
-//           chessBoard.removeMoves();
-//           List moveList = getPossibleMoves(x, y, chessBoard);
-//           if (moveList.isNotEmpty) {
-// //chessBoard.
-//             //chessBoard.chessFields
-//             for (ChessField element in moveList[0]) {
-//              // addMove(element, Colors.green);
-//               element.color = Colors.green;
-//             }
-//
-//             for (ChessField element in moveList[1]) {
-//               addMove(element, Colors.red);
-//             }
-//             // update /renderBoard
-//             // (
-//             // );
-//           }
-//         }
-//       },
+      onTap: handleTap,
       child: SizedBox(
         width: 100,
         height: 100,
@@ -666,5 +674,12 @@ class Figure extends StatelessWidget {
     );
   }
 
-  Figure.clone(Figure? figure, { required Key key}) : this(color: figure!.color, type: figure.type, x: figure.x, y: figure.y,key:key);
+  Figure.clone(Figure? figure, {required Key key})
+      : this(
+            color: figure!.color,
+            type: figure.type,
+            x: figure.x,
+            y: figure.y,
+            onTap: figure.onTap,
+            key: key);
 }
