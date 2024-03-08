@@ -14,6 +14,8 @@ class ChessField extends StatefulWidget {
   Figure? figure;
   Color? marker;
 
+  final void Function(int x, int y, Figure? figure) onFieldTap;
+
   ChessField({
     Key? key,
     required this.x,
@@ -25,6 +27,8 @@ class ChessField extends StatefulWidget {
     this.changed = false,
     this.figure,
     this.marker,
+    required this.onFieldTap,
+
   }) : super(key: key);
 
   @override
@@ -32,13 +36,10 @@ class ChessField extends StatefulWidget {
 }
 
 class _ChessFieldState extends State<ChessField> {
-
-
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-
+      onTap: () => widget.onFieldTap(widget.x, widget.y, widget.figure),
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(

@@ -7,7 +7,7 @@ import 'main.dart';
 
 // ignore: must_be_immutable
 class Board extends StatefulWidget {
-  Board({required this.chessFields, Key? key}) : super(key: key) {
+  Board({ required this.chessFields, Key? key}) : super(key: key) {
     // TODO: implement
   }
 
@@ -43,7 +43,7 @@ class Board extends StatefulWidget {
   }
 
   void makeMove(
-      ChessField fromChessField, ChessField toChessField, String playerType) {
+      ChessField fromChessField, ChessField toChessField, String playerType, Function updateState) {
     var figureCopy = fromChessField.figure;
     figureCopy?.hasMoved = true;
     toChessField.figure = figureCopy;
@@ -62,22 +62,22 @@ class Board extends StatefulWidget {
 
     switch (toChessField.rammerField?.special) {
       case "up":
-        moveUp(x);
+        moveUp(x, updateState);
         break;
       case "right":
-        moveRight(y);
+        moveRight(y, updateState);
         break;
       case "down":
-        moveDown(x);
+        moveDown(x, updateState);
         break;
       case "left":
-        moveLeft(y);
+        moveLeft(y, updateState);
         break;
       case "clockwise":
-        moveClockwise(x, y);
+        moveClockwise(x, y, updateState);
         break;
       case "anticlockwise":
-        moveAntiClockwise(x, y);
+        moveAntiClockwise(x, y, updateState);
         break;
     }
 
@@ -158,7 +158,20 @@ class _BoardState extends State<Board> {
   void addMove(ChessField chessField, Color marker) {
     chessField.marker = marker;
   }
+  void _handleBoardTap(TapDownDetails details) {
+    // Calculate the size of each ChessField
+    final fieldSize = context.size!.width / 8;
 
+    // Calculate the x and y coordinates of the tapped ChessField
+    final int x = (details.localPosition.dx / fieldSize).floor();
+    final int y = (details.localPosition.dy / fieldSize).floor();
+
+    // Calculate the position of the tapped ChessField in the chessFields list
+    final int pos = Board.calcPos(x, y);
+
+    // Call the _handleTap function of the tapped ChessField
+    widget.chessFields[pos].onFieldTap;
+  }
   void _handleFigureTap(Figure figure) {
     print('ChessFigure was tapped!');
     chessBoard._resetMarkers(); // Reset the markers before updating them
@@ -174,6 +187,7 @@ class _BoardState extends State<Board> {
             for (ChessField element in moveList[0]) {
               print('Adding green marker to ${element.chessPosition}');
               addMove(element, Colors.green);
+
             }
             for (ChessField element in moveList[1]) {
               print('Adding red marker to ${element.chessPosition}');
@@ -257,6 +271,7 @@ class _BoardState extends State<Board> {
             // onMarkerSelected: _handleMarkerSelected,
             changed: !_changed,
             key: UniqueKey(),
+            onFieldTap: _handleFieldTap,
           );
 
           chessBoard.fromChessFieldPosition = -1;
@@ -314,11 +329,32 @@ class _BoardState extends State<Board> {
             rammerField: chessField.rammerField,
             changed: chessField.changed,
             figure: chessField.figure,
-            marker: chessField.marker
+            marker: chessField.marker, 
+            onFieldTap: _handleFieldTap,
 
           );
         }),
       ),
     );
+  }
+
+  void _handleFieldTap(int x, int y, Figure? figure) {
+    //add logging here
+    print('ChessField was tapped!');
+    // Get the ChessField from the chessFields list
+    ChessField field = widget.chessFields[Board.calcPos(x, y)];
+
+    // Check if a figure is selected to move
+    if (widget.fromChessFieldPosition != null) {
+      // If yes, check if the tapped field is marked green
+      if (field.marker == Colors.green) {
+        // If yes, move the figure to the new field
+        widget.makeMove(widget.getChessField(widget.fromChessFieldPosition!), field, "human", (update) => setState(update));
+        widget.fromChessFieldPosition = null;
+      }
+    } else if (figure != null && figure.color == widget.colorToMove) {
+      // If no figure is selected and the tapped figure can be moved, select the figure
+      widget.fromChessFieldPosition = Board.calcPos(x, y);
+    }
   }
 }
