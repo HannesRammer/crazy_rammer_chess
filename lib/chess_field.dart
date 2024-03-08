@@ -4,6 +4,7 @@ import 'chess_board.dart';
 import 'chess_figure.dart';
 import 'rammer_field.dart';
 
+// ignore: must_be_immutable
 class ChessField extends StatefulWidget {
   final int x, y;
   final List<int>? xyPosition;

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'chess_board.dart';
 
@@ -9,8 +10,7 @@ class Figure extends StatelessWidget {
       {required Key key,
       this.type,
       this.color,
-      required this.x,
-      required this.y,
+
       required this.onTap})
       : super(key: key) {
     int multi = 1;
@@ -32,12 +32,21 @@ class Figure extends StatelessWidget {
     }
   }
 
-  final void Function(Figure figure) onTap;
+  final void Function(Figure figure, BuildContext context) onTap;
   final String? type;
   final Color? color;
   int value = 0;
-  int x;
-  int y;
+
+
+  int getX(BuildContext context) {
+    ChessField? chessField = context.findAncestorWidgetOfExactType<ChessField>();
+    return chessField!.x;
+  }
+
+  int getY(BuildContext context) {
+    ChessField? chessField = context.findAncestorWidgetOfExactType<ChessField>();
+    return chessField!.y;
+  }
 
   bool calculated = false;
   bool hasMoved = false;
@@ -57,6 +66,8 @@ class Figure extends StatelessWidget {
     } else if (type == "pawn") {
       possibleMoves = Figure.getPawnMoves(this, x, y, chessBoard);
     }
+    print('Possible moves for figure at $x, $y: $possibleMoves');
+
     return possibleMoves;
   }
 
@@ -652,18 +663,18 @@ class Figure extends StatelessWidget {
     return '''type:$type color:$color''';
   }
 
-  void handleTap() {
+  void handleTap(BuildContext context) {
     print('Figure was tapped!');
     print('Figure type: $type');
     print('Figure color: $color');
-    print('Figure x: $x');
-    print('Figure y: $y');
-    onTap(this);
+    print('Figure getX: ${getX(context)}');
+    print('Figure getY: ${getY(context)}');
+    onTap(this,context);
   }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: handleTap,
+      onTap: () => handleTap(context),
       child: SizedBox(
         width: 100,
         height: 100,
@@ -678,8 +689,6 @@ class Figure extends StatelessWidget {
       : this(
             color: figure!.color,
             type: figure.type,
-            x: figure.x,
-            y: figure.y,
             onTap: figure.onTap,
             key: key);
 }

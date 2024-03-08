@@ -5,6 +5,14 @@ import 'rammer_field.dart';
 import 'move_functions.dart';
 import 'main.dart';
 
+
+enum GameState {
+  SelectingStart,
+  SelectingDestination,
+}
+
+GameState gameState = GameState.SelectingStart;
+
 // ignore: must_be_immutable
 class Board extends StatefulWidget {
   Board({ required this.chessFields, Key? key}) : super(key: key) {
@@ -49,6 +57,7 @@ class Board extends StatefulWidget {
     toChessField.figure = figureCopy;
     fromChessField.figure = null;
 
+
     if (chessBoard.colorToMove == Colors.white) {
       chessBoard.colorToMove = Colors.black;
     } else {
@@ -84,6 +93,7 @@ class Board extends StatefulWidget {
     if (playerType == "human") {
       //aiMove();
     }
+// Update the figure's coordinates
 
     updateBoard();
   }
@@ -156,6 +166,7 @@ class _BoardState extends State<Board> {
   int y = 0; // Define y
 
   void addMove(ChessField chessField, Color marker) {
+    print('Adding $marker marker to ${chessField.chessPosition}');
     chessField.marker = marker;
   }
   void _handleBoardTap(TapDownDetails details) {
@@ -172,34 +183,26 @@ class _BoardState extends State<Board> {
     // Call the _handleTap function of the tapped ChessField
     widget.chessFields[pos].onFieldTap;
   }
-  void _handleFigureTap(Figure figure) {
-    print('ChessFigure was tapped!');
-    chessBoard._resetMarkers(); // Reset the markers before updating them
-    if (figure?.color == chessBoard.colorToMove) {
-      print('Figure color matches the color to move');
-      chessBoard.fromChessFieldPosition = Board.calcPos(figure.x, figure.y);
 
-      if (figure != null) {
-        List moveList = figure.getPossibleMoves(figure.x, figure.y, chessBoard);
-        if (moveList.isNotEmpty) {
-          print('Possible moves are available');
-          setState(() { // Add this line
-            for (ChessField element in moveList[0]) {
-              print('Adding green marker to ${element.chessPosition}');
-              addMove(element, Colors.green);
+  void _handleFigureTap(Figure figure, BuildContext context) {
 
-            }
-            for (ChessField element in moveList[1]) {
-              print('Adding red marker to ${element.chessPosition}');
-              addMove(element, Colors.red);
-            }
-          }); // Add this line
-        } else {
-          print('No possible moves available');
-        }
+    if (figure.color == chessBoard.colorToMove) {
+      chessBoard._resetMarkers();
+      int x = figure.getX(context);
+      int y = figure.getY(context);
+      chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
+      List moveList = figure.getPossibleMoves(x, y, chessBoard);
+      if (moveList.isNotEmpty) {
+        setState(() {
+          for (ChessField element in moveList[0]) {
+            addMove(element, Colors.green);
+          }
+          for (ChessField element in moveList[1]) {
+            addMove(element, Colors.red);
+          }
+        });
+        gameState = GameState.SelectingDestination;
       }
-    } else {
-      print('Figure color does not match the color to move');
     }
   }
   void initBoard() {
@@ -250,12 +253,12 @@ class _BoardState extends State<Board> {
               rammerDirectionsCounter++;
             }
           }
-          Figure? figure = Figure(key: UniqueKey(), x: x, y: y, onTap:_handleFigureTap,);
+          Figure? figure = Figure(key: UniqueKey(), onTap:_handleFigureTap,);
 
           if (Board.calcPos(x, y) < 16) {
-            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, x: x, y: y, onTap:_handleFigureTap ,);
+            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, onTap:_handleFigureTap ,);
           } else if (Board.calcPos(x, y) >= 48) {
-            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, x: x, y: y, onTap:_handleFigureTap );
+            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, onTap:_handleFigureTap );
           } else {
             figure = null;
           }
@@ -339,21 +342,14 @@ class _BoardState extends State<Board> {
   }
 
   void _handleFieldTap(int x, int y, Figure? figure) {
-    //add logging here
-    print('ChessField was tapped!');
-    // Get the ChessField from the chessFields list
+
     ChessField field = widget.chessFields[Board.calcPos(x, y)];
 
-    // Check if a figure is selected to move
-    if (widget.fromChessFieldPosition != null) {
-      // If yes, check if the tapped field is marked green
-      if (field.marker == Colors.green) {
-        // If yes, move the figure to the new field
-        widget.makeMove(widget.getChessField(widget.fromChessFieldPosition!), field, "human", (update) => setState(update));
-        widget.fromChessFieldPosition = null;
-      }
-    } else if (figure != null && figure.color == widget.colorToMove) {
-      // If no figure is selected and the tapped figure can be moved, select the figure
+    if (widget.fromChessFieldPosition != null && field.marker == Colors.green) {
+      widget.makeMove(widget.getChessField(widget.fromChessFieldPosition!), field, "human", (update) => setState(update));
+      widget.fromChessFieldPosition = null;
+      gameState = GameState.SelectingStart;
+    } else if (figure?.color == widget.colorToMove) {
       widget.fromChessFieldPosition = Board.calcPos(x, y);
     }
   }
