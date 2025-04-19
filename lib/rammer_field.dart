@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'rammer_colors.dart';
 
 class RammerField extends StatelessWidget {
   final String? special;

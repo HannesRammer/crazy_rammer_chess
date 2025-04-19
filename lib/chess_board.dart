@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
-import 'rammer_colors.dart';
-import 'rammer_moves.dart';
+import 'theme_provider.dart';
 
 class ChessBoard extends StatefulWidget {
   final List<ChessField> chessFields;
@@ -27,11 +26,11 @@ class _ChessBoardState extends State<ChessBoard> {
 
   void _nextColorCombination() {
     setState(() {
-      currentColorIndex = (currentColorIndex + 1) % rammerColorCombinations.length;
+      currentColorIndex = (currentColorIndex + 1) % ThemeProvider.rammerColorCombinations.length;
     });
   }
 
-  Map<String, Color> get currentRammerColors => rammerColorCombinations[currentColorIndex];
+  Map<String, Color> get currentRammerColors => ThemeProvider.rammerColorCombinations[currentColorIndex];
 
   void _onFieldTap(int index) {
     final field = widget.chessFields[index];
@@ -144,18 +143,6 @@ class _ChessBoardState extends State<ChessBoard> {
                         color: field.color ?? Colors.grey[300],
                         border: Border.all(color: Colors.black26, width: 1.5),
                         boxShadow: [
-                          if (isSelected)
-                            BoxShadow(
-                              color: Colors.blue.withOpacity(0.5),
-                              blurRadius: 16,
-                              spreadRadius: 2,
-                            ),
-                          if (isMove)
-                            BoxShadow(
-                              color: Colors.greenAccent.withOpacity(0.4),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            ),
                           BoxShadow(
                             color: Colors.black.withOpacity(0.08),
                             blurRadius: 4,
@@ -167,6 +154,40 @@ class _ChessBoardState extends State<ChessBoard> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
+                          // Inner glow effect for isSelected, isMove, and attackable fields
+                          if (isSelected ||
+                              isMove ||
+                              (possibleMoves.contains(index) && widget.chessFields[index].figure != null))
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    if (isSelected)
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.9),
+                                        blurRadius: 16,
+                                        spreadRadius: -2,
+                                        offset: Offset(0, 0),
+                                      ),
+                                    if (isMove)
+                                      BoxShadow(
+                                        color: Colors.greenAccent.withOpacity(0.9),
+                                        blurRadius: 12,
+                                        spreadRadius: -2,
+                                        offset: Offset(0, 0),
+                                      ),
+                                    if (possibleMoves.contains(index) && widget.chessFields[index].figure != null)
+                                      BoxShadow(
+                                        color: Colors.red.withOpacity(0.9),
+                                        blurRadius: 12,
+                                        spreadRadius: -2,
+                                        offset: Offset(0, 0),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           // Rammer color with paintbrush stroke effect
                           if (field.rammerField != null && field.rammerField!.special != null)
                             Positioned.fill(
@@ -226,44 +247,6 @@ class _ChessBoardState extends State<ChessBoard> {
         ),
       ],
     );
-  }
-}
-
-Alignment _getGradientStart(String special) {
-  switch (special) {
-    case 'up':
-      return Alignment.bottomCenter;
-    case 'down':
-      return Alignment.topCenter;
-    case 'left':
-      return Alignment.centerRight;
-    case 'right':
-      return Alignment.centerLeft;
-    case 'clockwise':
-      return Alignment.topLeft;
-    case 'anticlockwise':
-      return Alignment.bottomRight;
-    default:
-      return Alignment.center;
-  }
-}
-
-Alignment _getGradientEnd(String special) {
-  switch (special) {
-    case 'up':
-      return Alignment.topCenter;
-    case 'down':
-      return Alignment.bottomCenter;
-    case 'left':
-      return Alignment.centerLeft;
-    case 'right':
-      return Alignment.centerRight;
-    case 'clockwise':
-      return Alignment.bottomRight;
-    case 'anticlockwise':
-      return Alignment.topLeft;
-    default:
-      return Alignment.center;
   }
 }
 

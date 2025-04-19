@@ -2,19 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'chess_game.dart';
 import 'home_screen.dart';
+import 'theme_provider.dart';
 
 Map chessBoardMap = {};
 List chessBoardList = [];
-
-List rammerDirections = ["up", "right", "down", "left", "clockwise", "anticlockwise"];
-Map rammerColors = {
-  "up": Colors.red[400],
-  "right": Colors.green,
-  "down": Colors.purple,
-  "left": Colors.yellow,
-  "clockwise": Colors.blue,
-  "anticlockwise": Colors.orange
-};
 
 const int boardSize = 8; // Configurable board size
 
@@ -85,8 +76,11 @@ List bottomFigures = [
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ChessGame.newGame(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChessGame.newGame()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
       child: const RammerChessApp(),
     ),
   );
