@@ -1,18 +1,12 @@
-
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'chess_board.dart';
-
 import 'chess_field.dart';
 
 // ignore: must_be_immutable
-class Figure extends StatelessWidget {
-  Figure(
-      {required Key key,
-      this.type,
-      this.color,
-
-      required this.onTap})
-      : super(key: key) {
+class ChessFigure extends StatelessWidget {
+  int? x, y;
+  ChessFigure({required Key key, this.type, this.color, required this.onTap, this.x, this.y}) : super(key: key) {
     int multi = 1;
     if (color == Colors.black) {
       multi = multi * -1;
@@ -32,628 +26,243 @@ class Figure extends StatelessWidget {
     }
   }
 
-  final void Function(Figure figure, BuildContext context) onTap;
+  final void Function(ChessFigure figure, BuildContext context) onTap;
   final String? type;
   final Color? color;
   int value = 0;
-
-
-  int getX(BuildContext context) {
-    ChessField? chessField = context.findAncestorWidgetOfExactType<ChessField>();
-    return chessField!.x;
-  }
-
-  int getY(BuildContext context) {
-    ChessField? chessField = context.findAncestorWidgetOfExactType<ChessField>();
-    return chessField!.y;
-  }
-
   bool calculated = false;
   bool hasMoved = false;
 
-  List<List<ChessField>> getPossibleMoves(int x, int y, Board chessBoard) {
-    List<List<ChessField>> possibleMoves = [];
+  List<List<ChessField>> getPossibleMoves(int x, int y, List<ChessField> board) {
     if (type == "rook") {
-      possibleMoves = Figure.getRookMoves(this, x, y, chessBoard);
+      return ChessFigure.getRookMoves(this, x, y, board);
     } else if (type == "knight") {
-      possibleMoves = Figure.getKnightMoves(this, x, y, chessBoard);
+      return ChessFigure.getKnightMoves(this, x, y, board);
     } else if (type == "bishop") {
-      possibleMoves = Figure.getBishopMoves(this, x, y, chessBoard);
+      return ChessFigure.getBishopMoves(this, x, y, board);
     } else if (type == "queen") {
-      possibleMoves = Figure.getQueenMoves(this, x, y, chessBoard);
+      return ChessFigure.getQueenMoves(this, x, y, board);
     } else if (type == "king") {
-      possibleMoves = Figure.getKingMoves(this, x, y, chessBoard);
+      return ChessFigure.getKingMoves(this, x, y, board);
     } else if (type == "pawn") {
-      possibleMoves = Figure.getPawnMoves(this, x, y, chessBoard);
+      return ChessFigure.getPawnMoves(this, x, y, board);
     }
-    print('Possible moves for figure at $x, $y: $possibleMoves');
-
-    return possibleMoves;
+    return [[], []];
   }
 
-  static List<List<ChessField>> getRookMoves(
-      Figure rook, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getRookMoves(ChessFigure rook, int x, int y, List<ChessField> board) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
 
-    for (int i = y + 1; i < 8; i++) {
-      //below rook
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x, i));
-      Figure? chessFieldFigure = chessField.figure;
-
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != rook.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-    for (int i = y - 1; i >= 0; i--) {
-      //above rook
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x, i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != rook.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
     }
 
-    for (int i = x - 1; i >= 0; i--) {
-      //left of rook
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(i, y));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != rook.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    for (int i = x + 1; i < 8; i++) {
-      //left of rook
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(i, y));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != rook.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-    return [possibleMoves, possibleAttacks];
-  }
-
-  static List<List<ChessField>> getBishopMoves(
-      Figure bishop, int x, int y, Board chessBoard) {
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-
-    int distance = 0;
-    int top = y;
-    int bottom = 7 - y;
-    int left = x;
-    int right = 7 - x;
-
-    //below right bishop
-    if (right <= bottom) {
-      distance = right;
-    } else {
-      distance = bottom;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x + i, y + i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != bishop.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //below left bishop
-    if (left <= bottom) {
-      distance = left;
-    } else {
-      distance = bottom;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x - i, y + i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != bishop.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //top left bishop
-    if (left <= top) {
-      distance = left;
-    } else {
-      distance = top;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x - i, y - i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != bishop.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //top right bishop
-    if (right <= top) {
-      distance = right;
-    } else {
-      distance = top;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x + i, y - i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != bishop.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    return [possibleMoves, possibleAttacks];
-  }
-
-  static List<List<ChessField>> getQueenMoves(
-      Figure queen, int x, int y, Board chessBoard) {
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-
-    //bishop
-    int distance = 0;
-    int top = y;
-    int bottom = 7 - y;
-    int left = x;
-    int right = 7 - x;
-
-    //below right queen
-    if (right <= bottom) {
-      distance = right;
-    } else {
-      distance = bottom;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x + i, y + i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //below left queen
-    if (left <= bottom) {
-      distance = left;
-    } else {
-      distance = bottom;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x - i, y + i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //top left queen
-    if (left <= top) {
-      distance = left;
-    } else {
-      distance = top;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x - i, y - i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    //top right queen
-    if (right <= top) {
-      distance = right;
-    } else {
-      distance = top;
-    }
-
-    for (int i = 1; i <= distance; i++) {
-      ChessField chessField =
-          chessBoard.getChessField(Board.calcPos(x + i, y - i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-//ROCK
-    for (int i = y + 1; i < 8; i++) {
-      //below queen
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x, i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-    for (int i = y - 1; i >= 0; i--) {
-      //above queen
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(x, i));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    for (int i = x - 1; i >= 0; i--) {
-      //left of queen
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(i, y));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-
-    for (int i = x + 1; i < 8; i++) {
-      //left of queen
-
-      ChessField chessField = chessBoard.getChessField(Board.calcPos(i, y));
-      Figure? chessFieldFigure = chessField.figure;
-      bool isEmpty = false;
-
-      if (chessFieldFigure == null) {
-        isEmpty = true;
-      }
-
-      if (isEmpty) {
-        possibleMoves.add(chessField);
-      } else {
-        bool isEnemy = chessFieldFigure?.color != queen.color;
-        if (isEnemy) {
-          possibleAttacks.add(chessField);
-        }
-        break;
-      }
-    }
-    return [possibleMoves, possibleAttacks];
-  }
-
-  static List<List<ChessField>> getKingMoves(
-      Figure king, int x, int y, Board chessBoard) {
-    // y = switchY(y);
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-    List kingMoves = [
-      [x, y - 1],
-      [x + 1, y - 1],
-      [x + 1, y],
-      [x + 1, y + 1],
-      [x, y + 1],
-      [x - 1, y + 1],
-      [x - 1, y],
-      [x - 1, y - 1]
-    ];
-// debugger;
-
-    for (var position in kingMoves) {
-      if ((position[0] >= 0 && position[0] < 8) &&
-          (position[1] >= 0 && position[1] < 8)) {
-        ChessField chessField =
-            chessBoard.getChessField(Board.calcPos(position[0], position[1]));
-        Figure? chessFieldFigure = chessField.figure;
-        bool isEmpty = false;
-
-        if (chessFieldFigure == null) {
-          isEmpty = true;
-        }
-
-        if (isEmpty) {
-          possibleMoves.add(chessField);
-        } else {
-          bool isEnemy = chessFieldFigure?.color != king.color;
-          if (isEnemy) {
-            possibleAttacks.add(chessField);
-          }
-        }
-      }
-    }
-    return [possibleMoves, possibleAttacks];
-  }
-
-  static List<List<ChessField>> getKnightMoves(
-      Figure knight, int x, int y, Board chessBoard) {
-    // y = switchY(y);
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-    List<List<int>> knightMoves = [
-      [x - 1, y - 2],
-      [x - 2, y - 1],
-      [x - 2, y + 1],
-      [x - 1, y + 2],
-      [x + 1, y + 2],
-      [x + 2, y + 1],
-      [x + 2, y - 1],
-      [x + 1, y - 2]
+    List<List<int>> directions = [
+      [0, 1], // up
+      [0, -1], // down
+      [-1, 0], // left
+      [1, 0], // right
     ];
 
-    for (List position in knightMoves) {
-      if ((position[0] >= 0 && position[0] < 8) &&
-          (position[1] >= 0 && position[1] < 8)) {
-        ChessField chessField =
-            chessBoard.getChessField(Board.calcPos(position[0], position[1]));
-        Figure? chessFieldFigure = chessField.figure;
-        bool isEmpty = false;
-
-        if (chessFieldFigure == null) {
-          isEmpty = true;
-        }
-
-        if (isEmpty) {
-          possibleMoves.add(chessField);
+    for (var dir in directions) {
+      int dx = dir[0], dy = dir[1];
+      int nx = x + dx, ny = y + dy;
+      while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+        ChessField? field = getField(nx, ny);
+        if (field == null) break;
+        if (field.figure == null) {
+          possibleMoves.add(field);
         } else {
-          bool isEnemy = chessFieldFigure?.color != knight.color;
-          if (isEnemy) {
-            possibleAttacks.add(chessField);
+          if (field.figure!.color != rook.color) {
+            possibleAttacks.add(field);
           }
+          break;
         }
+        nx += dx;
+        ny += dy;
       }
     }
     return [possibleMoves, possibleAttacks];
   }
 
-  static List<List<ChessField>> getPawnMoves(
-      Figure pawn, int x, int y, Board chessBoard) {
+  static List<List<ChessField>> getBishopMoves(ChessFigure bishop, int x, int y, List<ChessField> board) {
     List<ChessField> possibleMoves = [];
     List<ChessField> possibleAttacks = [];
-//move one field
-    ChessField chessField;
-    if (pawn.color == Colors.white) {
-      chessField = chessBoard.getChessField(Board.calcPos(x, y - 1));
-    } else {
-      chessField = chessBoard.getChessField(Board.calcPos(x, y + 1));
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
     }
-    //no field for move one found;
-    Figure? chessFieldFigure = chessField.figure;
-    bool isEmpty = false;
-    if (chessFieldFigure == null) {
-      isEmpty = true;
-    } else {
-      isEmpty = false;
-    }
-    if (isEmpty) {
-      possibleMoves.add(chessField);
-    }
-//move two field
-    if (!pawn.hasMoved) {
-      ChessField chessField1;
-      ChessField chessField2;
-      if (pawn.color == Colors.white) {
-        chessField1 = chessBoard.getChessField(Board.calcPos(x, y - 1));
-        chessField2 = chessBoard.getChessField(Board.calcPos(x, y - 2));
-      } else {
-        chessField1 = chessBoard.getChessField(Board.calcPos(x, y + 1));
-        chessField2 = chessBoard.getChessField(Board.calcPos(x, y + 2));
-      }
-      Figure? chessFieldFigure1 = chessField1.figure;
-      Figure? chessFieldFigure2 = chessField2.figure;
-      bool isEmpty1 = chessFieldFigure1 == null;
-      bool isEmpty2 = chessFieldFigure2 == null;
-      if (isEmpty1 && isEmpty2) {
-        possibleMoves.add(chessField2);
+
+    List<List<int>> directions = [
+      [1, 1], // down-right
+      [1, -1], // up-right
+      [-1, 1], // down-left
+      [-1, -1], // up-left
+    ];
+
+    for (var dir in directions) {
+      int dx = dir[0], dy = dir[1];
+      int nx = x + dx, ny = y + dy;
+      while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+        ChessField? field = getField(nx, ny);
+        if (field == null) break;
+        if (field.figure == null) {
+          possibleMoves.add(field);
+        } else {
+          if (field.figure!.color != bishop.color) {
+            possibleAttacks.add(field);
+          }
+          break;
+        }
+        nx += dx;
+        ny += dy;
       }
     }
-//attack right
-    if (pawn.color == Colors.white) {
-      chessField = chessBoard.getChessField(Board.calcPos(x + 1, y - 1));
-    } else {
-      chessField = chessBoard.getChessField(Board.calcPos(x + 1, y + 1));
+    return [possibleMoves, possibleAttacks];
+  }
+
+  static List<List<ChessField>> getQueenMoves(ChessFigure queen, int x, int y, List<ChessField> board) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
     }
-    chessFieldFigure = chessField.figure;
-    if (chessFieldFigure == null) {
-      isEmpty = true;
-    } else {
-      isEmpty = false;
-    }
-    if (!isEmpty) {
-      bool isEnemy = chessFieldFigure?.color != pawn.color;
-      if (isEnemy) {
-        possibleAttacks.add(chessField);
+
+    // All 8 directions: rook + bishop
+    List<List<int>> directions = [
+      [0, 1], // up
+      [0, -1], // down
+      [-1, 0], // left
+      [1, 0], // right
+      [1, 1], // down-right
+      [1, -1], // up-right
+      [-1, 1], // down-left
+      [-1, -1], // up-left
+    ];
+
+    for (var dir in directions) {
+      int dx = dir[0], dy = dir[1];
+      int nx = x + dx, ny = y + dy;
+      while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+        ChessField? field = getField(nx, ny);
+        if (field == null) break;
+        if (field.figure == null) {
+          possibleMoves.add(field);
+        } else {
+          if (field.figure!.color != queen.color) {
+            possibleAttacks.add(field);
+          }
+          break; // Can't move past any piece
+        }
+        nx += dx;
+        ny += dy;
       }
     }
-//attack left
-    isEmpty = false;
-    if (pawn.color == Colors.white) {
-      chessField = chessBoard.getChessField(Board.calcPos(x - 1, y - 1));
-    } else {
-      chessField = chessBoard.getChessField(Board.calcPos(x - 1, y + 1));
+
+    return [possibleMoves, possibleAttacks];
+  }
+
+  static List<List<ChessField>> getKingMoves(ChessFigure king, int x, int y, List<ChessField> board) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
     }
-    chessFieldFigure = chessField.figure;
-    if (chessFieldFigure == null) {
-      isEmpty = true;
+
+    // All 8 directions (one step only)
+    List<List<int>> directions = [
+      [0, 1], // up
+      [0, -1], // down
+      [-1, 0], // left
+      [1, 0], // right
+      [1, 1], // down-right
+      [1, -1], // up-right
+      [-1, 1], // down-left
+      [-1, -1], // up-left
+    ];
+
+    for (var dir in directions) {
+      int nx = x + dir[0], ny = y + dir[1];
+      ChessField? field = getField(nx, ny);
+      if (field == null) continue;
+      if (field.figure == null) {
+        possibleMoves.add(field);
+      } else if (field.figure!.color != king.color) {
+        possibleAttacks.add(field);
+      }
     }
-    if (!isEmpty) {
-      bool isEnemy = chessFieldFigure?.color != pawn.color;
-      if (isEnemy) {
-        possibleAttacks.add(chessField);
+
+    return [possibleMoves, possibleAttacks];
+  }
+
+  static List<List<ChessField>> getKnightMoves(ChessFigure knight, int x, int y, List<ChessField> board) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
+    }
+
+    List<List<int>> moves = [
+      [1, 2],
+      [2, 1],
+      [2, -1],
+      [1, -2],
+      [-1, -2],
+      [-2, -1],
+      [-2, 1],
+      [-1, 2],
+    ];
+
+    for (var move in moves) {
+      int nx = x + move[0], ny = y + move[1];
+      ChessField? field = getField(nx, ny);
+      if (field == null) continue;
+      if (field.figure == null) {
+        possibleMoves.add(field);
+      } else if (field.figure!.color != knight.color) {
+        possibleAttacks.add(field);
+      }
+    }
+    return [possibleMoves, possibleAttacks];
+  }
+
+  static List<List<ChessField>> getPawnMoves(ChessFigure pawn, int x, int y, List<ChessField> board) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+    int direction = pawn.color == Colors.white ? -1 : 1;
+    int startRow = pawn.color == Colors.white ? 6 : 1;
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
+    }
+
+    // Forward move
+    ChessField? oneAhead = getField(x, y + direction);
+    if (oneAhead != null && oneAhead.figure == null) {
+      possibleMoves.add(oneAhead);
+      // Double move from starting position
+      if (y == startRow) {
+        ChessField? twoAhead = getField(x, y + 2 * direction);
+        if (twoAhead != null && twoAhead.figure == null) {
+          possibleMoves.add(twoAhead);
+        }
+      }
+    }
+    // Captures
+    for (var dx in [-1, 1]) {
+      ChessField? attackField = getField(x + dx, y + direction);
+      if (attackField != null && attackField.figure != null && attackField.figure!.color != pawn.color) {
+        possibleAttacks.add(attackField);
       }
     }
     return [possibleMoves, possibleAttacks];
@@ -664,31 +273,63 @@ class Figure extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    print('Figure was tapped!');
-    print('Figure type: $type');
-    print('Figure color: $color');
-    print('Figure getX: ${getX(context)}');
-    print('Figure getY: ${getY(context)}');
-    onTap(this,context);
+    developer.log('Figure was tapped!', name: 'ChessFigure');
+    developer.log('Figure type: $type', name: 'ChessFigure');
+    developer.log('Figure color: $color', name: 'ChessFigure');
+    developer.log('Figure x: $x', name: 'ChessFigure');
+    developer.log('Figure y: $y', name: 'ChessFigure');
+    onTap(this, context);
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => handleTap(context),
       child: SizedBox(
-        width: 100,
-        height: 100,
+        width: 48,
+        height: 48,
         child: Image.asset(
-          "images/$type${color == Colors.white ? "white" : "black"}.png",
+          "images/${type}${color == Colors.white ? "white" : "black"}.png",
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Icon(Icons.error, size: 32),
         ),
       ),
     );
   }
 
-  Figure.clone(Figure? figure, {required Key key})
-      : this(
-            color: figure!.color,
-            type: figure.type,
-            onTap: figure.onTap,
-            key: key);
+  String get symbol {
+    if (type == null) return '';
+    if (color == Colors.white) {
+      switch (type) {
+        case 'king':
+          return '♔';
+        case 'queen':
+          return '♕';
+        case 'rook':
+          return '♖';
+        case 'bishop':
+          return '♗';
+        case 'knight':
+          return '♘';
+        case 'pawn':
+          return '♙';
+      }
+    } else {
+      switch (type) {
+        case 'king':
+          return '♚';
+        case 'queen':
+          return '♛';
+        case 'rook':
+          return '♜';
+        case 'bishop':
+          return '♝';
+        case 'knight':
+          return '♞';
+        case 'pawn':
+          return '♟';
+      }
+    }
+    return '';
+  }
 }

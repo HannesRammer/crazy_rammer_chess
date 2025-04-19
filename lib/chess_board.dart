@@ -1,356 +1,272 @@
 import 'package:flutter/material.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
-import 'rammer_field.dart';
-import 'move_functions.dart';
-import 'main.dart';
+import 'rammer_colors.dart';
+import 'rammer_moves.dart';
 
+class ChessBoard extends StatefulWidget {
+  final List<ChessField> chessFields;
+  const ChessBoard({Key? key, required this.chessFields}) : super(key: key);
 
-enum GameState {
-  SelectingStart,
-  SelectingDestination,
-}
-
-GameState gameState = GameState.SelectingStart;
-
-// ignore: must_be_immutable
-class Board extends StatefulWidget {
-  Board({ required this.chessFields, Key? key}) : super(key: key) {
-    // TODO: implement
+  static int calcPos(int x, int y) {
+    return y * 8 + x;
   }
-
-  String name = "RammerChess";
-  List<ChessField> chessFields;
-  Color? colorToMove = Colors.white;
-  int? fromChessFieldPosition;
-  int? toChessFieldPosition;
-
-
-
-  //###THIS IS FOR CHESS AI
-  // Map getPossibleMoves() {
-  //   List possibleMoves = [];
-  //   Map pMap = {};
-  //   for (int x = 0; x < 8; x++) {
-  //     for (int y = 0; y < 8; y++) {
-  //       int pos = Board.calcPos(x, y);
-  //       Figure? figure = chessFields[pos].figure;
-  //       if (figure != null) {
-  //         possibleMoves = figure.getPossibleMoves(x, y, this);
-  //         pMap["${x}_$y"] = possibleMoves;
-  //       }
-  //     }
-  //   }
-  //   //return possibleMoves;
-  //   return pMap;
-  // }
-  void _resetMarkers() {
-    for (ChessField field in chessBoard.chessFields) {
-      field.marker = null; // Or whatever your default color is
-    }
-  }
-
-  void makeMove(
-      ChessField fromChessField, ChessField toChessField, String playerType, Function updateState) {
-    var figureCopy = fromChessField.figure;
-    figureCopy?.hasMoved = true;
-    toChessField.figure = figureCopy;
-    fromChessField.figure = null;
-
-
-    if (chessBoard.colorToMove == Colors.white) {
-      chessBoard.colorToMove = Colors.black;
-    } else {
-      chessBoard.colorToMove = Colors.white;
-    }
-
-    _resetMarkers(); // Reset the markers before updating them
-
-    var x = toChessField.x;
-    var y = toChessField.y;
-
-    switch (toChessField.rammerField?.special) {
-      case "up":
-        moveUp(x, updateState);
-        break;
-      case "right":
-        moveRight(y, updateState);
-        break;
-      case "down":
-        moveDown(x, updateState);
-        break;
-      case "left":
-        moveLeft(y, updateState);
-        break;
-      case "clockwise":
-        moveClockwise(x, y, updateState);
-        break;
-      case "anticlockwise":
-        moveAntiClockwise(x, y, updateState);
-        break;
-    }
-
-    if (playerType == "human") {
-      //aiMove();
-    }
-// Update the figure's coordinates
-
-    updateBoard();
-  }
-
-
-  updateBoard() {}
-
-/*
-aiMove() {
-  Map bestMove = chess_ai.calculateBestMove(chessBoard);
-  int currentX = bestMove["x"];
-  int currentY = bestMove["y"];
-  List currentPos = Board.calcPos(bestMove["x"], bestMove["y"]);
-
-  Map toField = bestMove["${currentX}_${currentY}"];
-  int toX = toField["x"];
-  int toY = toField["y"];
-  int toPos = Board.calcPos(toField["x"], toField["y"]);
-  // debugger;
-  makeMove(chessBoard.getChessField(currentPos),
-      chessBoard.getChessField(toPos), "ai");
-}
-*/
-
-
-
-
-  ChessField getChessField(pos) {
-    return chessFields[pos];
-  }
-
-  static int calcPos(x, y) {
-    return (y * 8) + (x + 1) - 1;
-  }
-
-  int evaluateBoard() {
-    int totalEvaluation = 0;
-    int figCount = 0;
-    for (int x = 0; x < 8; x++) {
-      for (int y = 0; y < 8; y++) {
-        int pos = Board.calcPos(x, y);
-        Figure? figure = chessFields[pos].figure;
-
-        if (figure != null) {
-          figCount++;
-          int value = figure.value;
-          totalEvaluation = totalEvaluation + value;
-        }
-      }
-    }
-    print("totalEvaluation $totalEvaluation figCount $figCount");
-    return totalEvaluation;
-  }
-
-  // The framework calls createState the first time
-  // a widget appears at a given location in the tree.
-  // If the parent rebuilds and uses the same type of
-  // widget (with the same key), the framework re-uses
-  // the State object instead of creating a new State object.
 
   @override
-  _BoardState createState() => _BoardState();
+  State<ChessBoard> createState() => _ChessBoardState();
 }
 
-class _BoardState extends State<Board> {
-  bool _changed = false;
+class _ChessBoardState extends State<ChessBoard> {
+  int? selectedIndex;
+  List<int> possibleMoves = [];
+  Color currentTurn = Colors.white;
+  List<String> moveHistory = [];
+  List<ChessFigure> capturedWhite = [];
+  List<ChessFigure> capturedBlack = [];
+  int currentColorIndex = 0; // Track the current color combination
 
-  Color color = Colors.white; // Define color
-  int x = 0; // Define x
-  int y = 0; // Define y
-
-  void addMove(ChessField chessField, Color marker) {
-    print('Adding $marker marker to ${chessField.chessPosition}');
-    chessField.marker = marker;
-  }
-  void _handleBoardTap(TapDownDetails details) {
-    // Calculate the size of each ChessField
-    final fieldSize = context.size!.width / 8;
-
-    // Calculate the x and y coordinates of the tapped ChessField
-    final int x = (details.localPosition.dx / fieldSize).floor();
-    final int y = (details.localPosition.dy / fieldSize).floor();
-
-    // Calculate the position of the tapped ChessField in the chessFields list
-    final int pos = Board.calcPos(x, y);
-
-    // Call the _handleTap function of the tapped ChessField
-    widget.chessFields[pos].onFieldTap;
+  void _nextColorCombination() {
+    setState(() {
+      currentColorIndex = (currentColorIndex + 1) % rammerColorCombinations.length;
+    });
   }
 
-  void _handleFigureTap(Figure figure, BuildContext context) {
+  Map<String, Color> get currentRammerColors => rammerColorCombinations[currentColorIndex];
 
-    if (figure.color == chessBoard.colorToMove) {
-      chessBoard._resetMarkers();
-      int x = figure.getX(context);
-      int y = figure.getY(context);
-      chessBoard.fromChessFieldPosition = Board.calcPos(x, y);
-      List moveList = figure.getPossibleMoves(x, y, chessBoard);
-      if (moveList.isNotEmpty) {
+  void _onFieldTap(int index) {
+    final field = widget.chessFields[index];
+    final figure = field.figure;
+    if (selectedIndex == null) {
+      // Select a piece if it exists
+      if (figure != null && figure.color == currentTurn) {
         setState(() {
-          for (ChessField element in moveList[0]) {
-            addMove(element, Colors.green);
-          }
-          for (ChessField element in moveList[1]) {
-            addMove(element, Colors.red);
-          }
+          selectedIndex = index;
+          possibleMoves = _getPossibleMoveIndices(figure, field.x, field.y);
         });
-        gameState = GameState.SelectingDestination;
       }
-    }
-  }
-  void initBoard() {
-    if (topFigures.isNotEmpty && bottomFigures.isNotEmpty) {
-      for (int y = 0; y < 8; y++) {
-        //row
-        String letter = "";
-        if (y == 0) {
-          letter = "a";
-        } else if (y == 1) {
-          letter = "b";
-        } else if (y == 2) {
-          letter = "c";
-        } else if (y == 3) {
-          letter = "d";
-        } else if (y == 4) {
-          letter = "e";
-        } else if (y == 5) {
-          letter = "f";
-        } else if (y == 6) {
-          letter = "g";
-        } else if (y == 7) {
-          letter = "h";
-        }
-        // for (int x = 0; x < 8; x++) {//column
-        for (int x = 0; x < 8; x++) {
-          //column
-          String special = "";
-          RammerField? rammerField = RammerField(
-            key: UniqueKey(),
-          );
-
-          if (y == 0 || y == 1) {
-            special = "none";
-          } else if (y == 6 || y == 7) {
-            //bottom two rows
-            special = "none";
-          } else {
-            special = rammerDirections[rammerDirectionsCounter];
-
-            rammerField.x = x;
-            rammerField.y = y;
-            rammerField.special = special;
-            rammerField.color = rammerColors[special];
-            if (rammerDirectionsCounter == 5) {
-              rammerDirectionsCounter = 0;
+    } else {
+      // If tapping a highlighted move, move the piece
+      if (possibleMoves.contains(index)) {
+        setState(() {
+          final captured = widget.chessFields[index].figure;
+          if (captured != null) {
+            if (captured.color == Colors.white) {
+              capturedWhite.add(captured);
             } else {
-              rammerDirectionsCounter++;
+              capturedBlack.add(captured);
             }
           }
-          Figure? figure = Figure(key: UniqueKey(), onTap:_handleFigureTap,);
-
-          if (Board.calcPos(x, y) < 16) {
-            figure = Figure(key: UniqueKey(), type: topFigures.removeAt(0), color: Colors.black, onTap:_handleFigureTap ,);
-          } else if (Board.calcPos(x, y) >= 48) {
-            figure = Figure(key: UniqueKey(), type: bottomFigures.removeAt(0), color: Colors.white, onTap:_handleFigureTap );
-          } else {
-            figure = null;
-          }
-          ChessField chessField = ChessField(
-            x: x,
-            y: y,
-            xyPosition: [x, y],
-            chessPosition: "$x $letter",
-            color: board[y][x],
-            figure: figure,
-            rammerField: rammerField,
-            marker: null,
-            // onMarkerSelected: _handleMarkerSelected,
-            changed: !_changed,
-            key: UniqueKey(),
-            onFieldTap: _handleFieldTap,
-          );
-
-          chessBoard.fromChessFieldPosition = -1;
-          chessBoard.toChessFieldPosition = -1;
-          chessBoardMap["$x $letter"] = chessField;
-          chessBoardList.add(chessField);
-          chessBoard.chessFields.add(chessField);
-        }
+          widget.chessFields[index].figure = widget.chessFields[selectedIndex!].figure;
+          widget.chessFields[selectedIndex!].figure = null;
+          moveHistory.add(
+              "${widget.chessFields[selectedIndex!].x},${widget.chessFields[selectedIndex!].y} -> ${field.x},${field.y}");
+          selectedIndex = null;
+          possibleMoves = [];
+          currentTurn = currentTurn == Colors.white ? Colors.black : Colors.white;
+        });
+      } else {
+        // Deselect
+        setState(() {
+          selectedIndex = null;
+          possibleMoves = [];
+        });
       }
     }
   }
 
-
-//       },
-  // void _handleBoardChanged(ChessField chessField, bool onBoard) {
-  //   setState(() {
-  //     // When a user changes what's in the board, you need
-  //     // to change _chessBoard inside a setState call to
-  //     // trigger a rebuild.
-  //     // The framework then calls build, below,
-  //     // which updates the visual appearance of the app.
-  //
-  //     if (!onBoard) {
-  //       _chessBoard.add(chessField);
-  //     } else {
-  //       _chessBoard.remove(chessField);
-  //     }
-  //   });
-  // }
-
-  @override
-  void initState() {
-
-    initBoard();
-
-    super.initState();
+  List<int> _getPossibleMoveIndices(ChessFigure figure, int x, int y) {
+    final moves = figure.getPossibleMoves(x, y, widget.chessFields);
+    return moves.expand((list) => list).map((f) => widget.chessFields.indexOf(f)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.name),
-      ),
-      body: GridView.count(
-        crossAxisCount: 8,
-        children: List.generate(widget.chessFields.length, (index) {
-          ChessField chessField = widget.chessFields[index];
-          return ChessField(
-            x: chessField.x,
-            y: chessField.y,
-            xyPosition: chessField.xyPosition,
-            chessPosition: chessField.chessPosition,
-            color: chessField.color,
-            rammerField: chessField.rammerField,
-            changed: chessField.changed,
-            figure: chessField.figure,
-            marker: chessField.marker, 
-            onFieldTap: _handleFieldTap,
-
-          );
-        }),
-      ),
+    return Column(
+      children: [
+        // Navigation Bar with Next Button
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Rammer Chess",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton(
+                onPressed: _nextColorCombination,
+                child: const Text("Next Colors"),
+              ),
+            ],
+          ),
+        ),
+        // Chessboard
+        Expanded(
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black26, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(4, 4),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 8,
+                ),
+                itemCount: widget.chessFields.length,
+                itemBuilder: (context, index) {
+                  final field = widget.chessFields[index];
+                  final isSelected = selectedIndex == index;
+                  final isMove = possibleMoves.contains(index);
+                  return GestureDetector(
+                    onTap: () => _onFieldTap(index),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      decoration: BoxDecoration(
+                        color: field.color ?? Colors.grey[300],
+                        border: Border.all(color: Colors.black26, width: 1.5),
+                        boxShadow: [
+                          if (isSelected)
+                            BoxShadow(
+                              color: Colors.blue.withOpacity(0.5),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                            ),
+                          if (isMove)
+                            BoxShadow(
+                              color: Colors.greenAccent.withOpacity(0.4),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 4,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Rammer color with paintbrush stroke effect
+                          if (field.rammerField != null && field.rammerField!.special != null)
+                            Positioned.fill(
+                              child: Stack(
+                                children: [
+                                  // Apply Rammer color tint
+                                  ColorFiltered(
+                                    colorFilter: ColorFilter.mode(
+                                      currentRammerColors[field.rammerField!.special]!,
+                                      BlendMode.modulate,
+                                    ),
+                                    child: Image.asset(
+                                      _getBrushTexture(field.rammerField!.special!),
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  // Add light glow effect
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: RadialGradient(
+                                          center: Alignment.center,
+                                          radius: 1.5,
+                                          colors: [
+                                            currentRammerColors[field.rammerField!.special]!.withOpacity(0.5),
+                                            Colors.transparent,
+                                          ],
+                                          stops: [0.0, 1.0],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          // Chess piece image
+                          if (field.figure != null)
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                              child: Image.asset(
+                                'images/${field.figure!.type}${field.figure!.color == Colors.white ? 'white' : 'black'}.png',
+                                key: ValueKey('${field.figure!.type}_${field.figure!.color}'),
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
 
-  void _handleFieldTap(int x, int y, Figure? figure) {
-
-    ChessField field = widget.chessFields[Board.calcPos(x, y)];
-
-    if (widget.fromChessFieldPosition != null && field.marker == Colors.green) {
-      widget.makeMove(widget.getChessField(widget.fromChessFieldPosition!), field, "human", (update) => setState(update));
-      widget.fromChessFieldPosition = null;
-      gameState = GameState.SelectingStart;
-    } else if (figure?.color == widget.colorToMove) {
-      widget.fromChessFieldPosition = Board.calcPos(x, y);
-    }
+Alignment _getGradientStart(String special) {
+  switch (special) {
+    case 'up':
+      return Alignment.bottomCenter;
+    case 'down':
+      return Alignment.topCenter;
+    case 'left':
+      return Alignment.centerRight;
+    case 'right':
+      return Alignment.centerLeft;
+    case 'clockwise':
+      return Alignment.topLeft;
+    case 'anticlockwise':
+      return Alignment.bottomRight;
+    default:
+      return Alignment.center;
   }
+}
+
+Alignment _getGradientEnd(String special) {
+  switch (special) {
+    case 'up':
+      return Alignment.topCenter;
+    case 'down':
+      return Alignment.bottomCenter;
+    case 'left':
+      return Alignment.centerLeft;
+    case 'right':
+      return Alignment.centerRight;
+    case 'clockwise':
+      return Alignment.bottomRight;
+    case 'anticlockwise':
+      return Alignment.topLeft;
+    default:
+      return Alignment.center;
+  }
+}
+
+String _getBrushTexture(String special) {
+  return 'images/strokes/brush_$special.png';
 }

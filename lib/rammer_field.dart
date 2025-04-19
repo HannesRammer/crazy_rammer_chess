@@ -1,29 +1,45 @@
 import 'package:flutter/material.dart';
+import 'rammer_colors.dart';
 
-// ignore: must_be_immutable
 class RammerField extends StatelessWidget {
-  RammerField({required Key key, this.x, this.y, this.special, this.color})
-      : super(key: key);
+  final String? special;
+  final Color? color;
+  final int? x, y;
+  final Map<String, Color>? currentColors; // Add dynamic color map
 
-  int? x;
-  int? y;
-  String? special;
-  Color? color;
+  const RammerField({
+    Key? key,
+    this.special,
+    this.color,
+    this.x,
+    this.y,
+    this.currentColors, // Accept current color combination
+  }) : super(key: key);
 
-  String toS() {
-    return "xy:$x$y special:$special";
+  String describe() {
+    return "RammerField(special: $special)";
   }
 
   @override
   Widget build(BuildContext context) {
-    print(color); // Add this line to print the color property
-    return GestureDetector(
-
-      child: SizedBox(
-        child: CircleAvatar(
-          radius: 200,
-          backgroundColor: color,
-        ),
+    final Color? rammerColor =
+        (special != null && currentColors != null) ? currentColors![special!] : null; // Use dynamic colors
+    return SizedBox(
+      width: 24,
+      height: 24,
+      child: CircleAvatar(
+        radius: 12,
+        backgroundColor: rammerColor ?? color ?? Colors.grey,
+        child: special != null
+            ? Text(
+                special![0].toUpperCase(),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    shadows: [Shadow(blurRadius: 2, color: Colors.black26)]),
+              )
+            : null,
       ),
     );
   }
