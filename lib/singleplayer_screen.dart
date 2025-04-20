@@ -7,8 +7,6 @@ import 'theme_provider.dart';
 class SingleplayerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false); // Use the global theme provider
-
     final chessGame = Provider.of<ChessGame>(context);
     return Scaffold(
       appBar: PreferredSize(

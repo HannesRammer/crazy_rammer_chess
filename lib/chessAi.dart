@@ -186,7 +186,7 @@
 //     // int calcBoardCopy = {...calcBoard};
 //     for (int x = 0; x < 8; x++) {
 //       for (int y = 0; y < 8; y++) {
-//         int pos = ChessBoard.calcPos(x, y);
+//         int pos = calcPos(x, y);
 //         Figure? figure = calcBoardCopy.chessFields[pos].figure;
 //         if (figure == null &&
 //             figure.color == "black" &&
@@ -199,14 +199,14 @@
 //               Field field = moveList[i];
 //               calcBoardCopy = deepCopy();
 //               int currentChessField = chessBoard.getChessField(
-//                   calcBoardCopy, ChessBoard.calcPos(x, y));
+//                   calcBoardCopy, calcPos(x, y));
 //               // debugger;
 //
 //               figure.calculated = true;
-//               calcBoardCopy.chessFields[ChessBoard.calcPos(field.x, field.y)]
+//               calcBoardCopy.chessFields[calcPos(field.x, field.y)]
 //                   .figure = figure;
 //               calcBoardCopy
-//                   .chessFields[ChessBoard.calcPos(
+//                   .chessFields[calcPos(
 //                   currentChessField.x, currentChessField.y)]
 //                   .figure = null;
 //
@@ -233,7 +233,7 @@
 //     int calcBoardCopy = deepCopy();
 //     for (int x = 0; x < 8; x++) {
 //       for (int y = 0; y < 8; y++) {
-//         int pos = ChessBoard.calcPos(x, y);
+//         int pos = calcPos(x, y);
 //         Figure? figure = calcBoardCopy.chessFields[pos].figure;
 //
 //         if (figure == null &&
@@ -247,14 +247,14 @@
 //               Field field = moveList[i];
 //               calcBoardCopy = deepCopy();
 //               int currentChessField =
-//               calcBoardCopy.getChessField(ChessBoard.calcPos(x, y));
+//               calcBoardCopy.getChessField(calcPos(x, y));
 //               // debugger;
 //
 //               figure.calculated = true;
-//               calcBoardCopy.chessFields[ChessBoard.calcPos(field.x, field.y)]
+//               calcBoardCopy.chessFields[calcPos(field.x, field.y)]
 //                   .figure = figure;
 //               calcBoardCopy
-//                   .chessFields[ChessBoard.calcPos(
+//                   .chessFields[calcPos(
 //                   currentChessField.x, currentChessField.y)]
 //                   .figure = null;
 //

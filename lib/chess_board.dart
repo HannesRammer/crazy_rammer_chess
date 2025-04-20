@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
+import 'rammer_moves.dart';
 import 'theme_provider.dart';
 
 class ChessBoard extends StatefulWidget {
   final List<ChessField> chessFields;
   final void Function()? onNextColors;
   const ChessBoard({Key? key, required this.chessFields, this.onNextColors}) : super(key: key);
-
-  static int calcPos(int x, int y) {
-    return y * 8 + x;
-  }
 
   @override
   State<ChessBoard> createState() => _ChessBoardState();
@@ -24,6 +21,7 @@ class _ChessBoardState extends State<ChessBoard> {
   List<String> moveHistory = [];
   List<ChessFigure> capturedWhite = [];
   List<ChessFigure> capturedBlack = [];
+  bool showMoveHistory = false; // NEW
 
   // Ensure the default theme is reset when a new game starts
   @override
@@ -50,22 +48,44 @@ class _ChessBoardState extends State<ChessBoard> {
       // If tapping a highlighted move, move the piece
       if (possibleMoves.contains(index)) {
         setState(() {
-          final captured = widget.chessFields[index].figure;
-          if (captured != null) {
-            if (captured.color == Colors.white) {
-              capturedWhite.add(captured);
-            } else {
-              capturedBlack.add(captured);
-            }
-          }
-          widget.chessFields[index].figure = widget.chessFields[selectedIndex!].figure;
-          widget.chessFields[selectedIndex!].figure = null;
-          moveHistory.add(
-              "${widget.chessFields[selectedIndex!].x},${widget.chessFields[selectedIndex!].y} -> ${field.x},${field.y}");
+          final fromField = widget.chessFields[selectedIndex!];
+          final toField = widget.chessFields[index];
+          // Move the piece
+          toField.figure = fromField.figure;
+          fromField.figure = null;
+          moveHistory.add("${fromField.x},${fromField.y} -> ${toField.x},${toField.y}");
           selectedIndex = null;
           possibleMoves = [];
           currentTurn = currentTurn == Colors.white ? Colors.black : Colors.white;
         });
+        // After moving, check for rammer field and trigger rammer move if present
+        final toField = widget.chessFields[index];
+        final rammer = toField.rammerField;
+        if (rammer != null && rammer.special != null) {
+          final rammerMoves = RammerMoves();
+          final x = toField.x;
+          final y = toField.y;
+          switch (rammer.special) {
+            case 'up':
+              rammerMoves.moveUp(x, widget.chessFields, (fn) => setState(fn));
+              break;
+            case 'down':
+              rammerMoves.moveDown(x, widget.chessFields, (fn) => setState(fn));
+              break;
+            case 'left':
+              rammerMoves.moveLeft(y, widget.chessFields, (fn) => setState(fn));
+              break;
+            case 'right':
+              rammerMoves.moveRight(y, widget.chessFields, (fn) => setState(fn));
+              break;
+            case 'clockwise':
+              rammerMoves.moveClockwise(x, y, widget.chessFields, (fn) => setState(fn));
+              break;
+            case 'anticlockwise':
+              rammerMoves.moveAntiClockwise(x, y, widget.chessFields, (fn) => setState(fn));
+              break;
+          }
+        }
       } else {
         // Deselect
         setState(() {
@@ -106,12 +126,70 @@ class _ChessBoardState extends State<ChessBoard> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Current Turn: ${currentTurn == Colors.white ? 'White' : 'Black'}'),
-              Text('Move History: ${moveHistory.length} moves'),
-              Text('Captured Pieces: W(${capturedWhite.length}) B(${capturedBlack.length})'),
+              // Current turn with colored dot
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: currentTurn,
+                    radius: 8,
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Turn: ${currentTurn == Colors.white ? 'White' : 'Black'}'),
+                ],
+              ),
+              // Move history expandable
+              GestureDetector(
+                onTap: () => setState(() => showMoveHistory = !showMoveHistory),
+                child: Row(
+                  children: [
+                    Text('Moves: ${moveHistory.length}'),
+                    Icon(showMoveHistory ? Icons.expand_less : Icons.expand_more),
+                  ],
+                ),
+              ),
+              // Captured pieces stacked
+              Row(
+                children: [
+                  ...capturedWhite.map((f) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                        child: Image.asset(
+                          'images/${f.type}white.png',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      )),
+                  const SizedBox(width: 4),
+                  ...capturedBlack.map((f) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                        child: Image.asset(
+                          'images/${f.type}black.png',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      )),
+                ],
+              ),
             ],
           ),
         ),
+        // Move history panel
+        if (showMoveHistory)
+          Container(
+            height: 100,
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black12),
+            ),
+            child: ListView.builder(
+              itemCount: moveHistory.length,
+              itemBuilder: (context, i) => Text(moveHistory[i]),
+            ),
+          ),
 
         // Chessboard
         Expanded(
@@ -141,7 +219,7 @@ class _ChessBoardState extends State<ChessBoard> {
                   return GestureDetector(
                     onTap: () => _onFieldTap(index),
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 4200), // Slower animation for rammer moves
                       curve: Curves.easeInOut,
                       decoration: BoxDecoration(
                         color: field.color ?? Colors.grey[300],
@@ -230,11 +308,12 @@ class _ChessBoardState extends State<ChessBoard> {
                           // Chess piece image
                           if (field.figure != null)
                             AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
+                              duration: const Duration(milliseconds: 4200), // Slower animation for rammer moves
                               transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
                               child: Image.asset(
                                 'images/${field.figure!.type}${field.figure!.color == Colors.white ? 'white' : 'black'}.png',
-                                key: ValueKey('${field.figure!.type}_${field.figure!.color}'),
+                                // Add a unique key that changes on every move, e.g.:
+                                key: ValueKey('${field.figure!.type}_${field.figure!.color}_${moveHistory.length}'),
                                 width: 36,
                                 height: 36,
                                 fit: BoxFit.contain,

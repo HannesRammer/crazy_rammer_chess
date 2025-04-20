@@ -1,229 +1,693 @@
-import 'package:rammer_chess/chess_board.dart';
-
-import 'chess_field.dart';
 import 'chess_figure.dart';
 import 'rammer_field.dart';
+import 'board_utils.dart';
 
 class RammerMoves {
-  void moveClockwise(int x, int y, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Helper to rotate a list of indices
-    void rotate(List<int> indices) {
-      final figs = indices.map((i) => chessFields[i].figure).toList();
-      final rams = indices.map((i) => chessFields[i].rammerField).toList();
-      updateState(() {
-        for (int i = 0; i < indices.length; i++) {
-          chessFields[indices[i]].figure = figs[(i - 1 + indices.length) % indices.length];
-          chessFields[indices[i]].rammerField = rams[(i - 1 + indices.length) % indices.length];
-        }
-      });
-    }
-
+  void moveClockwise(int x, int y, dynamic chessFields, Function updateState) {
+    List<int> positions = [];
     if (x == 0 && y == 2) {
-      // Top left corner 2x2
-      rotate([
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      // Define specific positions
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      // Access chessFields directly, which has already been defined in `chess_board.dart`
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig1;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub1;
+      });
     } else if (x >= 1 && x <= 6 && y == 2) {
-      // Top edge, not corners
-      rotate([
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //2
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig3;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig4;
+      chessFields[positions[3]].figure = fig5;
+      chessFields[positions[4]].figure = fig2;
+
+      chessFields[positions[0]].rammerField = rub3;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub4;
+      chessFields[positions[3]].rammerField = rub5;
+      chessFields[positions[4]].rammerField = rub2;
     } else if (x == 7 && y == 2) {
-      // Top right corner 2x2
-      rotate([
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-      ]);
+      //3
+
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig2;
+      chessFields[positions[1]].figure = fig3;
+      chessFields[positions[2]].figure = fig1;
+
+      chessFields[positions[0]].rammerField = rub2;
+      chessFields[positions[1]].rammerField = rub3;
+      chessFields[positions[2]].rammerField = rub1;
     } else if ((x == 0 && y == 3) || (x == 0 && y == 4)) {
-      // Left edge
-      rotate([
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //4
+
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig4;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+      chessFields[positions[3]].figure = fig5;
+      chessFields[positions[4]].figure = fig3;
+
+      chessFields[positions[0]].rammerField = rub4;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
+      chessFields[positions[3]].rammerField = rub5;
+      chessFields[positions[4]].rammerField = rub3;
     } else if ((x >= 1 && x <= 6 && y == 3) || (x >= 1 && x <= 6 && y == 4)) {
-      // Center
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //5
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig8 = chessFields[positions[7]].figure;
+      ChessFigure? fig7 = chessFields[positions[6]].figure;
+      ChessFigure? fig6 = chessFields[positions[5]].figure;
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub8 = chessFields[positions[7]].rammerField;
+      RammerField? rub7 = chessFields[positions[6]].rammerField;
+      RammerField? rub6 = chessFields[positions[5]].rammerField;
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig4;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+      chessFields[positions[3]].figure = fig6;
+      chessFields[positions[4]].figure = fig3;
+      chessFields[positions[5]].figure = fig7;
+      chessFields[positions[6]].figure = fig8;
+      chessFields[positions[7]].figure = fig5;
+
+      chessFields[positions[0]].rammerField = rub4;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
+      chessFields[positions[3]].rammerField = rub6;
+      chessFields[positions[4]].rammerField = rub3;
+      chessFields[positions[5]].rammerField = rub7;
+      chessFields[positions[6]].rammerField = rub8;
+      chessFields[positions[7]].rammerField = rub5;
     } else if ((x == 7 && y == 3) || (x == 7 && y == 4)) {
-      // Right edge
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-      ]);
+      //6
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig3;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig4;
+      chessFields[positions[3]].figure = fig5;
+      chessFields[positions[4]].figure = fig2;
+
+      chessFields[positions[0]].rammerField = rub3;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub4;
+      chessFields[positions[3]].rammerField = rub5;
+      chessFields[positions[4]].rammerField = rub2;
     } else if (x == 0 && y == 5) {
-      // Bottom left corner 2x2
-      rotate([
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x + 1, y),
-      ]);
+      //7
+
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x + 1, y));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig3;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+
+      chessFields[positions[0]].rammerField = rub3;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
     } else if (x >= 1 && x <= 6 && y == 5) {
-      // Bottom edge, not corners
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-      ]);
+      //8
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig4;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+      chessFields[positions[3]].figure = fig5;
+      chessFields[positions[4]].figure = fig3;
+
+      chessFields[positions[0]].rammerField = rub4;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
+      chessFields[positions[3]].rammerField = rub5;
+      chessFields[positions[4]].rammerField = rub3;
     } else if (x == 7 && y == 5) {
-      // Bottom right corner 2x2
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-      ]);
+      //9
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x - 1, y));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+
+      chessFields[positions[0]].figure = fig3;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+
+      chessFields[positions[0]].rammerField = rub3;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
     }
   }
 
-  void moveAntiClockwise(int x, int y, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Helper to rotate a list of indices anti-clockwise
-    void rotate(List<int> indices) {
-      final figs = indices.map((i) => chessFields[i].figure).toList();
-      final rams = indices.map((i) => chessFields[i].rammerField).toList();
-      updateState(() {
-        for (int i = 0; i < indices.length; i++) {
-          chessFields[indices[i]].figure = figs[(i + 1) % indices.length];
-          chessFields[indices[i]].rammerField = rams[(i + 1) % indices.length];
-        }
-      });
-    }
-
+  moveAntiClockwise(x, y, dynamic chessFields, Function updateState) {
+    List positions = [];
     if (x == 0 && y == 2) {
-      // Top left corner 2x2
-      rotate([
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //1
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig3;
+        chessFields[positions[1]].figure = fig1;
+        chessFields[positions[2]].figure = fig2;
+
+        chessFields[positions[0]].rammerField = rub3;
+        chessFields[positions[1]].rammerField = rub1;
+        chessFields[positions[2]].rammerField = rub2;
+      });
     } else if (x >= 1 && x <= 6 && y == 2) {
-      // Top edge, not corners
-      rotate([
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //2
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig5;
+        chessFields[positions[2]].figure = fig1;
+        chessFields[positions[3]].figure = fig3;
+        chessFields[positions[4]].figure = fig4;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub5;
+        chessFields[positions[2]].rammerField = rub1;
+        chessFields[positions[3]].rammerField = rub3;
+        chessFields[positions[4]].rammerField = rub4;
+      });
     } else if (x == 7 && y == 2) {
-      // Top right corner 2x2
-      rotate([
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-      ]);
+      //3
+
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig3;
+        chessFields[positions[1]].figure = fig1;
+        chessFields[positions[2]].figure = fig2;
+
+        chessFields[positions[0]].rammerField = rub3;
+        chessFields[positions[1]].rammerField = rub1;
+        chessFields[positions[2]].rammerField = rub2;
+      });
     } else if ((x == 0 && y == 3) || (x == 0 && y == 4)) {
-      // Left edge
-      rotate([
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //4
+
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig5;
+        chessFields[positions[3]].figure = fig1;
+        chessFields[positions[4]].figure = fig4;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub5;
+        chessFields[positions[3]].rammerField = rub1;
+        chessFields[positions[4]].rammerField = rub4;
+      });
     } else if ((x >= 1 && x <= 6 && y == 3) || (x >= 1 && x <= 6 && y == 4)) {
-      // Center
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-        ChessBoard.calcPos(x + 1, y + 1),
-      ]);
+      //5
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+      positions.add(calcPos(x + 1, y + 1));
+
+      ChessFigure? fig8 = chessFields[positions[7]].figure;
+      ChessFigure? fig7 = chessFields[positions[6]].figure;
+      ChessFigure? fig6 = chessFields[positions[5]].figure;
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub8 = chessFields[positions[7]].rammerField;
+      RammerField? rub7 = chessFields[positions[6]].rammerField;
+      RammerField? rub6 = chessFields[positions[5]].rammerField;
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig5;
+        chessFields[positions[3]].figure = fig1;
+        chessFields[positions[4]].figure = fig8;
+        chessFields[positions[5]].figure = fig4;
+        chessFields[positions[6]].figure = fig6;
+        chessFields[positions[7]].figure = fig7;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub5;
+        chessFields[positions[3]].rammerField = rub1;
+        chessFields[positions[4]].rammerField = rub8;
+        chessFields[positions[5]].rammerField = rub4;
+        chessFields[positions[6]].rammerField = rub6;
+        chessFields[positions[7]].rammerField = rub7;
+      });
     } else if ((x == 7 && y == 3) || (x == 7 && y == 4)) {
-      // Right edge
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x - 1, y + 1),
-        ChessBoard.calcPos(x, y + 1),
-      ]);
+      //6
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x - 1, y + 1));
+      positions.add(calcPos(x, y + 1));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig5;
+        chessFields[positions[2]].figure = fig1;
+        chessFields[positions[3]].figure = fig3;
+        chessFields[positions[4]].figure = fig4;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub5;
+        chessFields[positions[2]].rammerField = rub1;
+        chessFields[positions[3]].rammerField = rub3;
+        chessFields[positions[4]].rammerField = rub4;
+      });
     } else if (x == 0 && y == 5) {
-      // Bottom left corner 2x2
-      rotate([
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x + 1, y),
-      ]);
+      //7
+
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x + 1, y));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig1;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub1;
+      });
     } else if (x >= 1 && x <= 6 && y == 5) {
-      // Bottom edge, not corners
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x + 1, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-        ChessBoard.calcPos(x + 1, y),
-      ]);
+      //8
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x + 1, y - 1));
+      positions.add(calcPos(x - 1, y));
+      positions.add(calcPos(x + 1, y));
+
+      ChessFigure? fig5 = chessFields[positions[4]].figure;
+      ChessFigure? fig4 = chessFields[positions[3]].figure;
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub5 = chessFields[positions[4]].rammerField;
+      RammerField? rub4 = chessFields[positions[3]].rammerField;
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig5;
+        chessFields[positions[3]].figure = fig1;
+        chessFields[positions[4]].figure = fig4;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub5;
+        chessFields[positions[3]].rammerField = rub1;
+        chessFields[positions[4]].rammerField = rub4;
+      });
     } else if (x == 7 && y == 5) {
-      // Bottom right corner 2x2
-      rotate([
-        ChessBoard.calcPos(x - 1, y - 1),
-        ChessBoard.calcPos(x, y - 1),
-        ChessBoard.calcPos(x - 1, y),
-      ]);
+      //9
+
+      positions.add(calcPos(x - 1, y - 1));
+      positions.add(calcPos(x, y - 1));
+      positions.add(calcPos(x - 1, y));
+      ChessFigure? fig3 = chessFields[positions[2]].figure;
+      ChessFigure? fig2 = chessFields[positions[1]].figure;
+      ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+      RammerField? rub3 = chessFields[positions[2]].rammerField;
+      RammerField? rub2 = chessFields[positions[1]].rammerField;
+      RammerField? rub1 = chessFields[positions[0]].rammerField;
+      updateState(() {
+        chessFields[positions[0]].figure = fig2;
+        chessFields[positions[1]].figure = fig3;
+        chessFields[positions[2]].figure = fig1;
+
+        chessFields[positions[0]].rammerField = rub2;
+        chessFields[positions[1]].rammerField = rub3;
+        chessFields[positions[2]].rammerField = rub1;
+      });
     }
   }
 
-  // Helper to shift a list of indices by one in the given direction
-  void _shift(
-      List<int> indices, List<ChessField> chessFields, int direction, void Function(void Function()) updateState) {
-    final len = indices.length;
-    final figs = indices.map((i) => chessFields[i].figure).toList();
-    final rams = indices.map((i) => chessFields[i].rammerField).toList();
+  moveUp(x, dynamic chessFields, Function updateState) {
+    List positions = [];
+    for (int y = 2; y < 6; y++) {
+      int pos = calcPos(x, y);
+      positions.add(pos);
+//        print("pos ${pos}");
+    }
+
+    ChessFigure? fig4 = chessFields[positions[3]].figure;
+    ChessFigure? fig3 = chessFields[positions[2]].figure;
+    ChessFigure? fig2 = chessFields[positions[1]].figure;
+    ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+    RammerField? rub4 = chessFields[positions[3]].rammerField;
+    RammerField? rub3 = chessFields[positions[2]].rammerField;
+    RammerField? rub2 = chessFields[positions[1]].rammerField;
+    RammerField? rub1 = chessFields[positions[0]].rammerField;
     updateState(() {
-      for (int i = 0; i < len; i++) {
-        chessFields[indices[i]].figure = figs[(i - direction + len) % len];
-        chessFields[indices[i]].rammerField = rams[(i - direction + len) % len];
-      }
+      chessFields[positions[0]].figure = fig2;
+      chessFields[positions[1]].figure = fig3;
+      chessFields[positions[2]].figure = fig4;
+      chessFields[positions[3]].figure = fig1;
+
+      chessFields[positions[0]].rammerField = rub2;
+      chessFields[positions[1]].rammerField = rub3;
+      chessFields[positions[2]].rammerField = rub4;
+      chessFields[positions[3]].rammerField = rub1;
     });
   }
 
-  void moveUp(int x, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Shift column up (y=2..5)
-    final indices = [for (int y = 2; y < 6; y++) ChessBoard.calcPos(x, y)];
-    _shift(indices, chessFields, -1, updateState);
+  moveDown(x, dynamic chessFields, Function updateState) {
+    List positions = [];
+    for (int y = 2; y < 6; y++) {
+      int pos = calcPos(x, y);
+      positions.add(pos);
+      print("pos $pos");
+    }
+
+    ChessFigure? fig4 = chessFields[positions[3]].figure;
+    ChessFigure? fig3 = chessFields[positions[2]].figure;
+    ChessFigure? fig2 = chessFields[positions[1]].figure;
+    ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+    RammerField? rub4 = chessFields[positions[3]].rammerField;
+    RammerField? rub3 = chessFields[positions[2]].rammerField;
+    RammerField? rub2 = chessFields[positions[1]].rammerField;
+    RammerField? rub1 = chessFields[positions[0]].rammerField;
+    updateState(() {
+      chessFields[positions[0]].figure = fig4;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+      chessFields[positions[3]].figure = fig3;
+
+      chessFields[positions[0]].rammerField = rub4;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
+      chessFields[positions[3]].rammerField = rub3;
+    });
   }
 
-  void moveDown(int x, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Shift column down (y=2..5)
-    final indices = [for (int y = 2; y < 6; y++) ChessBoard.calcPos(x, y)];
-    _shift(indices, chessFields, 1, updateState);
+  moveRight(y, dynamic chessFields, Function updateState) {
+    List positions = [];
+    for (int x = 0; x < 8; x++) {
+      int pos = calcPos(x, y);
+      positions.add(pos);
+      print("pos $pos");
+    }
+
+    ChessFigure? fig8 = chessFields[positions[7]].figure;
+    ChessFigure? fig7 = chessFields[positions[6]].figure;
+    ChessFigure? fig6 = chessFields[positions[5]].figure;
+    ChessFigure? fig5 = chessFields[positions[4]].figure;
+    ChessFigure? fig4 = chessFields[positions[3]].figure;
+    ChessFigure? fig3 = chessFields[positions[2]].figure;
+    ChessFigure? fig2 = chessFields[positions[1]].figure;
+    ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+    RammerField? rub8 = chessFields[positions[7]].rammerField;
+    RammerField? rub7 = chessFields[positions[6]].rammerField;
+    RammerField? rub6 = chessFields[positions[5]].rammerField;
+    RammerField? rub5 = chessFields[positions[4]].rammerField;
+    RammerField? rub4 = chessFields[positions[3]].rammerField;
+    RammerField? rub3 = chessFields[positions[2]].rammerField;
+    RammerField? rub2 = chessFields[positions[1]].rammerField;
+    RammerField? rub1 = chessFields[positions[0]].rammerField;
+    updateState(() {
+      chessFields[positions[0]].figure = fig8;
+      chessFields[positions[1]].figure = fig1;
+      chessFields[positions[2]].figure = fig2;
+      chessFields[positions[3]].figure = fig3;
+      chessFields[positions[4]].figure = fig4;
+      chessFields[positions[5]].figure = fig5;
+      chessFields[positions[6]].figure = fig6;
+      chessFields[positions[7]].figure = fig7;
+
+      chessFields[positions[0]].rammerField = rub8;
+      chessFields[positions[1]].rammerField = rub1;
+      chessFields[positions[2]].rammerField = rub2;
+      chessFields[positions[3]].rammerField = rub3;
+      chessFields[positions[4]].rammerField = rub4;
+      chessFields[positions[5]].rammerField = rub5;
+      chessFields[positions[6]].rammerField = rub6;
+      chessFields[positions[7]].rammerField = rub7;
+    });
   }
 
-  void moveRight(int y, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Shift row right (x=0..7)
-    final indices = [for (int x = 0; x < 8; x++) ChessBoard.calcPos(x, y)];
-    _shift(indices, chessFields, 1, updateState);
-  }
+  moveLeft(y, dynamic chessFields, Function updateState) {
+    List positions = [];
+    for (int x = 0; x < 8; x++) {
+      int pos = calcPos(x, y);
+      positions.add(pos);
+      print("pos $pos");
+    }
 
-  void moveLeft(int y, List<ChessField> chessFields, void Function(void Function()) updateState) {
-    // Shift row left (x=0..7)
-    final indices = [for (int x = 0; x < 8; x++) ChessBoard.calcPos(x, y)];
-    _shift(indices, chessFields, -1, updateState);
+    ChessFigure? fig8 = chessFields[positions[7]].figure;
+    ChessFigure? fig7 = chessFields[positions[6]].figure;
+    ChessFigure? fig6 = chessFields[positions[5]].figure;
+    ChessFigure? fig5 = chessFields[positions[4]].figure;
+    ChessFigure? fig4 = chessFields[positions[3]].figure;
+    ChessFigure? fig3 = chessFields[positions[2]].figure;
+    ChessFigure? fig2 = chessFields[positions[1]].figure;
+    ChessFigure? fig1 = chessFields[positions[0]].figure;
+
+    RammerField? rub8 = chessFields[positions[7]].rammerField;
+    RammerField? rub7 = chessFields[positions[6]].rammerField;
+    RammerField? rub6 = chessFields[positions[5]].rammerField;
+    RammerField? rub5 = chessFields[positions[4]].rammerField;
+    RammerField? rub4 = chessFields[positions[3]].rammerField;
+    RammerField? rub3 = chessFields[positions[2]].rammerField;
+    RammerField? rub2 = chessFields[positions[1]].rammerField;
+    RammerField? rub1 = chessFields[positions[0]].rammerField;
+    updateState(() {
+      chessFields[positions[0]].figure = fig2;
+      chessFields[positions[1]].figure = fig3;
+      chessFields[positions[2]].figure = fig4;
+      chessFields[positions[3]].figure = fig5;
+      chessFields[positions[4]].figure = fig6;
+      chessFields[positions[5]].figure = fig7;
+      chessFields[positions[6]].figure = fig8;
+      chessFields[positions[7]].figure = fig1;
+
+      chessFields[positions[0]].rammerField = rub2;
+      chessFields[positions[1]].rammerField = rub3;
+      chessFields[positions[2]].rammerField = rub4;
+      chessFields[positions[3]].rammerField = rub5;
+      chessFields[positions[4]].rammerField = rub6;
+      chessFields[positions[5]].rammerField = rub7;
+      chessFields[positions[6]].rammerField = rub8;
+      chessFields[positions[7]].rammerField = rub1;
+    });
   }
 }

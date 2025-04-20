@@ -12,9 +12,9 @@ class MultiplayerScreenState extends State<MultiplayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Multiplayer')),
-      body: Column(
+      body: const Column(
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(8.0),
             child: Text('Multiplayer Mode', style: TextStyle(fontSize: 18)),
           ),
