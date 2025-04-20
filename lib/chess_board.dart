@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
 import 'theme_provider.dart';
 
 class ChessBoard extends StatefulWidget {
   final List<ChessField> chessFields;
-  const ChessBoard({Key? key, required this.chessFields}) : super(key: key);
+  final void Function()? onNextColors;
+  const ChessBoard({Key? key, required this.chessFields, this.onNextColors}) : super(key: key);
 
   static int calcPos(int x, int y) {
     return y * 8 + x;
@@ -22,15 +24,16 @@ class _ChessBoardState extends State<ChessBoard> {
   List<String> moveHistory = [];
   List<ChessFigure> capturedWhite = [];
   List<ChessFigure> capturedBlack = [];
-  int currentColorIndex = 0; // Track the current color combination
 
-  void _nextColorCombination() {
-    setState(() {
-      currentColorIndex = (currentColorIndex + 1) % ThemeProvider.rammerColorCombinations.length;
+  // Ensure the default theme is reset when a new game starts
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      themeProvider.resetToDefaultTheme();
     });
   }
-
-  Map<String, Color> get currentRammerColors => ThemeProvider.rammerColorCombinations[currentColorIndex];
 
   void _onFieldTap(int index) {
     final field = widget.chessFields[index];
@@ -80,35 +83,36 @@ class _ChessBoardState extends State<ChessBoard> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to ThemeProvider for theme changes
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
+    final rammerColors = themeProvider.currentRammerColors;
+
     return Column(
       children: [
-        // Navigation Bar with Next Button
+        // a sleek but stylish game info bar with all the needed infos for a chess game
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
                 blurRadius: 8,
-                offset: Offset(0, 2),
+                offset: Offset(4, 4),
               ),
             ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Rammer Chess",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton(
-                onPressed: _nextColorCombination,
-                child: const Text("Next Colors"),
-              ),
+              Text('Current Turn: ${currentTurn == Colors.white ? 'White' : 'Black'}'),
+              Text('Move History: ${moveHistory.length} moves'),
+              Text('Captured Pieces: W(${capturedWhite.length}) B(${capturedBlack.length})'),
             ],
           ),
         ),
+
         // Chessboard
         Expanded(
           child: AspectRatio(
@@ -166,7 +170,7 @@ class _ChessBoardState extends State<ChessBoard> {
                                     if (isSelected)
                                       BoxShadow(
                                         color: Colors.blue.withOpacity(0.9),
-                                        blurRadius: 16,
+                                        blurRadius: 2,
                                         spreadRadius: -2,
                                         offset: Offset(0, 0),
                                       ),
@@ -196,7 +200,7 @@ class _ChessBoardState extends State<ChessBoard> {
                                   // Apply Rammer color tint
                                   ColorFiltered(
                                     colorFilter: ColorFilter.mode(
-                                      currentRammerColors[field.rammerField!.special]!,
+                                      rammerColors[field.rammerField!.special]!,
                                       BlendMode.modulate,
                                     ),
                                     child: Image.asset(
@@ -212,7 +216,7 @@ class _ChessBoardState extends State<ChessBoard> {
                                           center: Alignment.center,
                                           radius: 1.5,
                                           colors: [
-                                            currentRammerColors[field.rammerField!.special]!.withOpacity(0.5),
+                                            rammerColors[field.rammerField!.special]!.withOpacity(0.5),
                                             Colors.transparent,
                                           ],
                                           stops: [0.0, 1.0],

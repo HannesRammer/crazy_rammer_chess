@@ -55,10 +55,12 @@ class SingleplayerScreen extends StatelessWidget {
               const SizedBox(width: 12),
               TextButton(
                 onPressed: () {
-                  themeProvider.nextTheme(); // Use the global theme provider
+                  // Find the theme provider and next color combination
+                  final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                  themeProvider.nextTheme(); // Change the theme
                 },
                 child: const Text(
-                  "Next Theme",
+                  "Next Colors",
                   style: TextStyle(fontSize: 14),
                 ),
               ),
@@ -71,6 +73,8 @@ class SingleplayerScreen extends StatelessWidget {
           Expanded(
             child: ChessBoard(
               chessFields: chessGame.board,
+              onNextColors: () {}, // No-op, but required for interface
+              key: UniqueKey(), // Ensure rebuilds
             ),
           ),
         ],

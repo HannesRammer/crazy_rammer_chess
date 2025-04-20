@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider with ChangeNotifier {
-  int _currentThemeIndex = 0;
-  final List<Color> _themes = [Colors.blue, Colors.red, Colors.green];
-
   // Rammer color themes (all 10 from original rammer_colors.dart)
-  static const List<Map<String, Color>> rammerColorCombinations = [
+  static const List<Map<String, Color>> rammerThemes = [
     {
       'up': Color(0xFFFF8787), // red
       'right': Color(0xFF7AB67A), // green
@@ -88,22 +86,47 @@ class ThemeProvider with ChangeNotifier {
     },
   ];
 
-  // Expose the current theme index for static access
-  static int _staticThemeIndex = 0;
-  static int get currentThemeIndex => _staticThemeIndex;
-  static int getDefaultColorIndex() => _staticThemeIndex;
-  static void setDefaultColorIndex(int index) {
-    _staticThemeIndex = index;
+  int _currentThemeIndex = 0;
+  int _defaultThemeIndex = 0;
+
+  ThemeProvider() {
+    _loadDefaultThemeIndex();
   }
 
-  Color get currentTheme => _themes[_currentThemeIndex];
+  Future<void> _loadDefaultThemeIndex() async {
+    _defaultThemeIndex = await getDefaultThemeIndexFromPrefs();
+    _currentThemeIndex = _defaultThemeIndex;
+    notifyListeners();
+  }
 
-  Map<String, Color> get currentRammerColors =>
-      rammerColorCombinations[_currentThemeIndex % rammerColorCombinations.length];
+  Future<int> getDefaultThemeIndexFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    notifyListeners();
+
+    return prefs.getInt('defaultThemeIndex') ?? 0;
+  }
+
+  int get defaultThemeIndex => _defaultThemeIndex;
+
+  Future<void> setDefaultThemeIndex(int index) async {
+    if (index >= 0 && index < rammerThemes.length) {
+      _defaultThemeIndex = index;
+      _currentThemeIndex = index;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('defaultThemeIndex', index);
+      notifyListeners();
+    }
+  }
+
+  void resetToDefaultTheme() {
+    _currentThemeIndex = _defaultThemeIndex;
+    notifyListeners();
+  }
+
+  Map<String, Color> get currentRammerColors => rammerThemes[_currentThemeIndex % rammerThemes.length];
 
   void nextTheme() {
-    _currentThemeIndex = (_currentThemeIndex + 1) % _themes.length;
-    _staticThemeIndex = _currentThemeIndex;
-    notifyListeners(); // Notify listeners to rebuild UI with the new theme
+    _currentThemeIndex = (_currentThemeIndex + 1) % rammerThemes.length;
+    notifyListeners();
   }
 }

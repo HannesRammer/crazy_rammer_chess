@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  int selectedColorIndex = 0; // Default to the first color combination
+  int selectedThemeIndex = 0; // Default to the first theme combination
 
   @override
   void initState() {
     super.initState();
-    selectedColorIndex = ThemeProvider.getDefaultColorIndex(); // Load the default color index
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    selectedThemeIndex = themeProvider.defaultThemeIndex;
   }
 
-  void _onColorSelected(int index) {
+  void _onThemeSelected(int index) {
     setState(() {
-      selectedColorIndex = index;
-      ThemeProvider.setDefaultColorIndex(index); // Save the selected color index
+      selectedThemeIndex = index;
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      themeProvider.setDefaultThemeIndex(index);
     });
   }
 
@@ -27,16 +32,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView.builder(
-        itemCount: ThemeProvider.rammerColorCombinations.length,
+        itemCount: ThemeProvider.rammerThemes.length,
         itemBuilder: (context, index) {
-          final colors = ThemeProvider.rammerColorCombinations[index];
+          final colors = ThemeProvider.rammerThemes[index];
           return ListTile(
-            title: Text('Style ${index + 1}'),
-            leading: CircleAvatar(
-              backgroundColor: colors['up'],
+            title: Row(
+              children: [
+                for (final dir in ['up', 'right', 'down', 'left', 'clockwise', 'anticlockwise'])
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: colors[dir],
+                    ),
+                  ),
+              ],
             ),
-            trailing: selectedColorIndex == index ? const Icon(Icons.check, color: Colors.green) : null,
-            onTap: () => _onColorSelected(index),
+            trailing: selectedThemeIndex == index ? const Icon(Icons.check, color: Colors.green) : null,
+            onTap: () => _onThemeSelected(index),
           );
         },
       ),
