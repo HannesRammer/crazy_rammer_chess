@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'animated_rammer_field.dart';
 import 'chess_field.dart';
 import 'chess_figure.dart';
-import 'rammer_field.dart';
 import 'rammer_moves.dart';
 import 'theme_provider.dart';
-import 'board_utils.dart';
 
 class ChessBoard extends StatefulWidget {
   final List<ChessField> chessFields;
@@ -198,58 +195,71 @@ class _ChessBoardState extends State<ChessBoard> {
         Expanded(
           child: AspectRatio(
             aspectRatio: 1,
-            child: Stack(
-              children: [
-                // 1. Schachbrett als Grid (ohne Figuren)
-                GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black26, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(4, 4),
                   ),
-                  itemCount: widget.chessFields.length,
-                  itemBuilder: (context, index) {
-                    final field = widget.chessFields[index];
-
-                    return GestureDetector(
-                      onTap: () => _onFieldTap(index),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: field.color ?? Colors.grey[300],
-                          border: Border.all(color: Colors.black26, width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 4,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Stack(
-                          children: [
-                            // Inner glow effect for isSelected, isMove, and attackable fields
-                            if (selectedIndex == index ||
-                                possibleMoves.contains(index) ||
-                                (possibleMoves.contains(index) && field.figure != null))
-                              Container(
+                ],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 8,
+                ),
+                itemCount: widget.chessFields.length,
+                itemBuilder: (context, index) {
+                  final field = widget.chessFields[index];
+                  final isSelected = selectedIndex == index;
+                  final isMove = possibleMoves.contains(index);
+                  return GestureDetector(
+                    onTap: () => _onFieldTap(index),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 4200), // Slower animation for rammer moves
+                      curve: Curves.easeInOut,
+                      decoration: BoxDecoration(
+                        color: field.color ?? Colors.grey[300],
+                        border: Border.all(color: Colors.black26, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 4,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Inner glow effect for isSelected, isMove, and attackable fields
+                          if (isSelected ||
+                              isMove ||
+                              (possibleMoves.contains(index) && widget.chessFields[index].figure != null))
+                            Positioned.fill(
+                              child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   boxShadow: [
-                                    if (selectedIndex == index)
+                                    if (isSelected)
                                       BoxShadow(
                                         color: Colors.blue.withOpacity(0.9),
                                         blurRadius: 2,
                                         spreadRadius: -2,
                                         offset: Offset(0, 0),
                                       ),
-                                    if (possibleMoves.contains(index))
+                                    if (isMove)
                                       BoxShadow(
                                         color: Colors.greenAccent.withOpacity(0.9),
                                         blurRadius: 12,
                                         spreadRadius: -2,
                                         offset: Offset(0, 0),
                                       ),
-                                    if (possibleMoves.contains(index) && field.figure != null)
+                                    if (possibleMoves.contains(index) && widget.chessFields[index].figure != null)
                                       BoxShadow(
                                         color: Colors.red.withOpacity(0.9),
                                         blurRadius: 12,
@@ -259,20 +269,24 @@ class _ChessBoardState extends State<ChessBoard> {
                                   ],
                                 ),
                               ),
-                            // Rammer color with paintbrush stroke effect (optional, falls du es im Feld zeigen willst)
-                            if (field.rammerField != null && field.rammerField!.special != null)
-                              Stack(
+                            ),
+                          // Rammer color with paintbrush stroke effect
+                          if (field.rammerField != null && field.rammerField!.special != null)
+                            Positioned.fill(
+                              child: Stack(
                                 children: [
+                                  // Apply Rammer color tint
                                   ColorFiltered(
                                     colorFilter: ColorFilter.mode(
                                       rammerColors[field.rammerField!.special]!,
                                       BlendMode.modulate,
                                     ),
                                     child: Image.asset(
-                                      getBrushTexture(field.rammerField!.special!),
+                                      _getBrushTexture(field.rammerField!.special!),
                                       fit: BoxFit.contain,
                                     ),
                                   ),
+                                  // Add light glow effect
                                   Positioned.fill(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -290,36 +304,35 @@ class _ChessBoardState extends State<ChessBoard> {
                                   ),
                                 ],
                               ),
-                          ],
-                        ),
+                            ),
+                          // Chess piece image
+                          if (field.figure != null)
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 4200), // Slower animation for rammer moves
+                              transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                              child: Image.asset(
+                                'images/${field.figure!.type}${field.figure!.color == Colors.white ? 'white' : 'black'}.png',
+                                // Add a unique key that changes on every move, e.g.:
+                                key: ValueKey('${field.figure!.type}_${field.figure!.color}_${moveHistory.length}'),
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-                // 2. Figuren und Rammer-Felder als animierte Widgets
-                ...List.generate(widget.chessFields.length, (index) {
-                  final field = widget.chessFields[index];
-                  if (field.figure == null && field.rammerField == null) return SizedBox.shrink();
-                  return AnimatedRammerField(
-                    x: index % 8,
-                    y: index ~/ 8,
-                    fieldSize: MediaQuery.of(context).size.width / 8,
-                    rammerField: field.rammerField ??
-                        RammerField(special: 'default', color: Colors.grey), // Provide default RammerField
-                    figure: field.figure != null
-                        ? Image.asset(
-                            'images/${field.figure!.type}${field.figure!.color == Colors.white ? 'white' : 'black'}.png',
-                            width: 36,
-                            height: 36,
-                          )
-                        : null,
+                    ),
                   );
-                }),
-              ],
+                },
+              ),
             ),
           ),
         ),
       ],
     );
   }
+}
+
+String _getBrushTexture(String special) {
+  return 'images/strokes/brush_$special.png';
 }

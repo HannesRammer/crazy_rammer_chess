@@ -5,7 +5,3 @@
 int calcPos(int x, int y) {
   return y * 8 + x;
 }
-
-String getBrushTexture(String special) {
-  return 'images/strokes/brush_$special.png';
-}
