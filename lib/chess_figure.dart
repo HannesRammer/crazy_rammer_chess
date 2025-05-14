@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'chess_board.dart';
 import 'chess_field.dart';
+import 'chess_game.dart';
 
 // ignore: must_be_immutable
 class ChessFigure extends StatelessWidget {
@@ -34,6 +35,7 @@ class ChessFigure extends StatelessWidget {
   bool hasMoved = false;
 
   List<List<ChessField>> getPossibleMoves(int x, int y, List<ChessField> board) {
+    debugPrint('Generating possible moves for $type at ($x, $y)');
     if (type == "rook") {
       return ChessFigure.getRookMoves(this, x, y, board);
     } else if (type == "knight") {
@@ -47,7 +49,52 @@ class ChessFigure extends StatelessWidget {
     } else if (type == "pawn") {
       return ChessFigure.getPawnMoves(this, x, y, board);
     }
+    debugPrint('No moves generated for $type at ($x, $y)');
     return [[], []];
+  }
+
+  static List<List<ChessField>> getPawnMoves(ChessFigure pawn, int x, int y, List<ChessField> board,
+      {int? enPassantColumn}) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+    int direction = pawn.color == Colors.white ? -1 : 1;
+    int startRow = pawn.color == Colors.white ? 6 : 1;
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
+    }
+
+    // Forward move
+    ChessField? oneAhead = getField(x, y + direction);
+    if (oneAhead != null && oneAhead.figure == null) {
+      possibleMoves.add(oneAhead);
+      // Double move from starting position
+      if (y == startRow) {
+        ChessField? twoAhead = getField(x, y + 2 * direction);
+        if (twoAhead != null && twoAhead.figure == null) {
+          possibleMoves.add(twoAhead);
+        }
+      }
+    }
+
+    // Captures
+    for (var dx in [-1, 1]) {
+      ChessField? attackField = getField(x + dx, y + direction);
+      if (attackField != null && attackField.figure != null && attackField.figure!.color != pawn.color) {
+        possibleAttacks.add(attackField);
+      }
+
+      // En passant
+      if (enPassantColumn != null && x + dx == enPassantColumn) {
+        ChessField? enPassantField = getField(x + dx, y + direction);
+        if (enPassantField != null && enPassantField.figure == null) {
+          possibleAttacks.add(enPassantField);
+        }
+      }
+    }
+
+    return [possibleMoves, possibleAttacks];
   }
 
   static List<List<ChessField>> getRookMoves(ChessFigure rook, int x, int y, List<ChessField> board) {
@@ -82,6 +129,39 @@ class ChessFigure extends StatelessWidget {
         }
         nx += dx;
         ny += dy;
+      }
+    }
+    return [possibleMoves, possibleAttacks];
+  }
+
+  static List<List<ChessField>> getKnightMoves(ChessFigure knight, int x, int y, List<ChessField> board) {
+    List<ChessField> possibleMoves = [];
+    List<ChessField> possibleAttacks = [];
+
+    ChessField? getField(int x, int y) {
+      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+      return board[y * 8 + x];
+    }
+
+    List<List<int>> moves = [
+      [1, 2],
+      [2, 1],
+      [2, -1],
+      [1, -2],
+      [-1, -2],
+      [-2, -1],
+      [-2, 1],
+      [-1, 2],
+    ];
+
+    for (var move in moves) {
+      int nx = x + move[0], ny = y + move[1];
+      ChessField? field = getField(nx, ny);
+      if (field == null) continue;
+      if (field.figure == null) {
+        possibleMoves.add(field);
+      } else if (field.figure!.color != knight.color) {
+        possibleAttacks.add(field);
       }
     }
     return [possibleMoves, possibleAttacks];
@@ -199,73 +279,62 @@ class ChessFigure extends StatelessWidget {
       }
     }
 
-    return [possibleMoves, possibleAttacks];
-  }
-
-  static List<List<ChessField>> getKnightMoves(ChessFigure knight, int x, int y, List<ChessField> board) {
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-
-    ChessField? getField(int x, int y) {
-      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
-      return board[y * 8 + x];
-    }
-
-    List<List<int>> moves = [
-      [1, 2],
-      [2, 1],
-      [2, -1],
-      [1, -2],
-      [-1, -2],
-      [-2, -1],
-      [-2, 1],
-      [-1, 2],
-    ];
-
-    for (var move in moves) {
-      int nx = x + move[0], ny = y + move[1];
-      ChessField? field = getField(nx, ny);
-      if (field == null) continue;
-      if (field.figure == null) {
-        possibleMoves.add(field);
-      } else if (field.figure!.color != knight.color) {
-        possibleAttacks.add(field);
+    // Castling logic
+    if (!king.hasMoved) {
+      // Check for kingside castling
+      if (getField(x + 1, y)?.figure == null && getField(x + 2, y)?.figure == null) {
+        ChessField? rookField = getField(x + 3, y);
+        if (rookField?.figure?.type == 'rook' && !rookField!.figure!.hasMoved) {
+          possibleMoves.add(getField(x + 2, y)!);
+        }
       }
-    }
-    return [possibleMoves, possibleAttacks];
-  }
 
-  static List<List<ChessField>> getPawnMoves(ChessFigure pawn, int x, int y, List<ChessField> board) {
-    List<ChessField> possibleMoves = [];
-    List<ChessField> possibleAttacks = [];
-    int direction = pawn.color == Colors.white ? -1 : 1;
-    int startRow = pawn.color == Colors.white ? 6 : 1;
-
-    ChessField? getField(int x, int y) {
-      if (x < 0 || x > 7 || y < 0 || y > 7) return null;
-      return board[y * 8 + x];
-    }
-
-    // Forward move
-    ChessField? oneAhead = getField(x, y + direction);
-    if (oneAhead != null && oneAhead.figure == null) {
-      possibleMoves.add(oneAhead);
-      // Double move from starting position
-      if (y == startRow) {
-        ChessField? twoAhead = getField(x, y + 2 * direction);
-        if (twoAhead != null && twoAhead.figure == null) {
-          possibleMoves.add(twoAhead);
+      // Check for queenside castling
+      if (getField(x - 1, y)?.figure == null &&
+          getField(x - 2, y)?.figure == null &&
+          getField(x - 3, y)?.figure == null) {
+        ChessField? rookField = getField(x - 4, y);
+        if (rookField?.figure?.type == 'rook' && !rookField!.figure!.hasMoved) {
+          possibleMoves.add(getField(x - 2, y)!);
         }
       }
     }
-    // Captures
-    for (var dx in [-1, 1]) {
-      ChessField? attackField = getField(x + dx, y + direction);
-      if (attackField != null && attackField.figure != null && attackField.figure!.color != pawn.color) {
-        possibleAttacks.add(attackField);
-      }
-    }
+
     return [possibleMoves, possibleAttacks];
+  }
+
+  List<List<ChessField>> getLegalMoves(int x, int y, List<ChessField> board, Color kingColor, ChessGame game) {
+    List<List<ChessField>> allMoves = getPossibleMoves(x, y, board);
+    List<ChessField> legalMoves = [];
+    List<ChessField> legalAttacks = [];
+
+    for (var move in allMoves[0]) {
+      var originalFigure = move.figure;
+      move.figure = this;
+      board[y * 8 + x].figure = null;
+
+      bool stillInCheck = game.isKingInCheck(kingColor);
+
+      board[y * 8 + x].figure = this;
+      move.figure = originalFigure;
+
+      if (!stillInCheck) legalMoves.add(move);
+    }
+
+    for (var attack in allMoves[1]) {
+      var originalFigure = attack.figure;
+      attack.figure = this;
+      board[y * 8 + x].figure = null;
+
+      bool stillInCheck = game.isKingInCheck(kingColor);
+
+      board[y * 8 + x].figure = this;
+      attack.figure = originalFigure;
+
+      if (!stillInCheck) legalAttacks.add(attack);
+    }
+
+    return [legalMoves, legalAttacks];
   }
 
   String toS() {
